@@ -1043,7 +1043,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val loadedDstEntities2 = dataApi.loadEntitySetData(esDst2.id, essDst2, FileType.json).toList()
         Assert.assertEquals(numberOfEntries, loadedDstEntities2.size)
         loadedDstEntities2.forEach {
-            idsDst2.contains(UUID.fromString(it[OL_ID_FQN].first() as String))
+            idsDst2.contains(UUID.fromString(it[DataTables.ID_FQN].first() as String))
         }
 
         val essEdgeDst2 = EntitySetSelection(Optional.of(edgeDst2.properties))
