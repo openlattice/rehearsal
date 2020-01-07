@@ -23,7 +23,6 @@ package com.openlattice.rehearsal;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.auth0.json.auth.TokenHolder;
 import com.google.common.util.concurrent.RateLimiter;
 import com.openlattice.authentication.AuthenticationTest;
 import com.openlattice.authentication.AuthenticationTestRequestOptions;
@@ -87,13 +86,6 @@ public class SetupEnvironment {
         Authentication jwtUser2 = AuthenticationTest.getAuthentication( authOptions2 );
         Authentication jwtUser3 = AuthenticationTest.getAuthentication( authOptions3 );
 
-        limiter.acquire();
-        TokenHolder thAdmin = AuthenticationTest.tokenHolder();
-        TokenHolder thUser1 = AuthenticationTest.tokenHolder( authOptions1 );
-        limiter.acquire();
-        TokenHolder thUser2 = AuthenticationTest.tokenHolder( authOptions2 );
-        TokenHolder thUser3 = AuthenticationTest.tokenHolder( authOptions3 );
-
         String tokenAdmin = ( String ) jwtAdmin.getCredentials();
         String tokenUser1 = ( String ) jwtUser1.getCredentials();
         String tokenUser2 = ( String ) jwtUser2.getCredentials();
@@ -143,13 +135,10 @@ public class SetupEnvironment {
         user1 = toPrincipal( idUser1 );
         user2 = toPrincipal( idUser2 );
         user3 = toPrincipal( idUser3 );
-
-        //Comment out this line for local testing.
-//        TestEdmConfigurer.setupDatamodel( retrofit.create( EdmApi.class ) );
     }
 
     public static Auth0UserBasic getUserInfo( Principal principal ) {
-        PrincipalApi pApi = retrofit.create( PrincipalApi.class );
+        PrincipalApi pApi = getApiAdmin( PrincipalApi.class );
         return pApi.getUser( principal.getId() );
     }
 
