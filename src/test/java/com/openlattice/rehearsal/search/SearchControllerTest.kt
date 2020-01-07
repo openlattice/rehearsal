@@ -168,8 +168,8 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         val noNeighborData6 = searchApi.executeFilteredEntityNeighborIdsSearch(es.id, neighborsFilter)
         Assert.assertEquals(numberOfEntries, noNeighborData6.size)
         Assert.assertEquals(1, noNeighborData6[ids.random()]!!.size)
-        Assert.assertEquals(1, noNeighborData6[ids.random()]!![edge.id]!!.size())
-        Assert.assertEquals(setOf(dst.id), noNeighborData6[ids.random()]!![edge.id]!!.keySet())
+        Assert.assertEquals(1, noNeighborData6[ids.random()]!![edge.id]!!.size)
+        Assert.assertEquals(setOf(dst.id), noNeighborData6[ids.random()]!![edge.id]!!.keys)
 
         loginAs("admin")
 
@@ -212,8 +212,8 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         val neighborData3 = searchApi.executeFilteredEntityNeighborIdsSearch(es.id, neighborsFilter)
         Assert.assertEquals(numberOfEntries, neighborData3.size)
         Assert.assertEquals(1, neighborData3[ids.random()]!!.size)
-        Assert.assertEquals(1, neighborData3[ids.random()]!![edge.id]!!.size())
-        Assert.assertEquals(setOf(dst.id), neighborData3[ids.random()]!![edge.id]!!.keySet())
+        Assert.assertEquals(1, neighborData3[ids.random()]!![edge.id]!!.size)
+        Assert.assertEquals(setOf(dst.id), neighborData3[ids.random()]!![edge.id]!!.keys)
 
         loginAs("admin")
 
@@ -278,8 +278,8 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         val neighborData6 = searchApi.executeFilteredEntityNeighborIdsSearch(es.id, neighborsFilter)
         Assert.assertEquals(numberOfEntries, neighborData6.size)
         Assert.assertEquals(1, neighborData6[ids.random()]!!.size)
-        Assert.assertEquals(1, neighborData6[ids.random()]!![edge.id]!!.size())
-        Assert.assertEquals(setOf(dst.id), neighborData6[ids.random()]!![edge.id]!!.keySet())
+        Assert.assertEquals(1, neighborData6[ids.random()]!![edge.id]!!.size)
+        Assert.assertEquals(setOf(dst.id), neighborData6[ids.random()]!![edge.id]!!.keys)
 
         loginAs("admin")
     }

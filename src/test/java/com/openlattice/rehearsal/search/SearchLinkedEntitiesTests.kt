@@ -584,8 +584,8 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         val noNeighborData12 = searchApi.executeFilteredEntityNeighborIdsSearch(esLinking.id, neighborsFilter)
         Assert.assertEquals(linkingIds.size, noNeighborData12.size)
         Assert.assertTrue(noNeighborData12[linkingIds.random()]!!.isNotEmpty())
-        Assert.assertTrue(noNeighborData12[linkingIds.random()]!![edge.id]!!.size() > 0)
-        Assert.assertEquals(setOf(dst.id), noNeighborData12[linkingIds.random()]!![edge.id]!!.keySet())
+        Assert.assertTrue(noNeighborData12[linkingIds.random()]!![edge.id]!!.size > 0)
+        Assert.assertEquals(setOf(dst.id), noNeighborData12[linkingIds.random()]!![edge.id]!!.keys)
 
         loginAs("admin")
 
@@ -633,8 +633,8 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         val noNeighborPtData3 = searchApi.executeFilteredEntityNeighborIdsSearch(esLinking.id, neighborsFilter)
         Assert.assertEquals(linkingIds.size, noNeighborPtData3.size)
         Assert.assertTrue(noNeighborPtData3[linkingIds.random()]!!.isNotEmpty())
-        Assert.assertTrue(noNeighborPtData3[linkingIds.random()]!![edge.id]!!.size() > 0)
-        Assert.assertEquals(setOf(dst.id), noNeighborPtData3[linkingIds.random()]!![edge.id]!!.keySet())
+        Assert.assertTrue(noNeighborPtData3[linkingIds.random()]!![edge.id]!!.size > 0)
+        Assert.assertEquals(setOf(dst.id), noNeighborPtData3[linkingIds.random()]!![edge.id]!!.keys)
 
         loginAs("admin")
 
@@ -682,8 +682,8 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         val neighborData3 = searchApi.executeFilteredEntityNeighborIdsSearch(esLinking.id, neighborsFilter)
         Assert.assertEquals(linkingIds.size, neighborData3.size)
         Assert.assertTrue(neighborData3[linkingIds.random()]!!.isNotEmpty())
-        Assert.assertTrue(neighborData3[linkingIds.random()]!![edge.id]!!.size() > 0)
-        Assert.assertEquals(setOf(dst.id), neighborData3[linkingIds.random()]!![edge.id]!!.keySet())
+        Assert.assertTrue(neighborData3[linkingIds.random()]!![edge.id]!!.size > 0)
+        Assert.assertEquals(setOf(dst.id), neighborData3[linkingIds.random()]!![edge.id]!!.keys)
 
         loginAs("admin")
 
@@ -756,8 +756,8 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         val neighborData6 = searchApi.executeFilteredEntityNeighborIdsSearch(esLinking.id, neighborsFilter)
         Assert.assertEquals(linkingIds.size, neighborData6.size)
         Assert.assertTrue(neighborData6[linkingIds.random()]!!.isNotEmpty())
-        Assert.assertTrue(neighborData6[linkingIds.random()]!![edge.id]!!.size() > 0)
-        Assert.assertEquals(setOf(dst.id), neighborData6[linkingIds.random()]!![edge.id]!!.keySet())
+        Assert.assertTrue(neighborData6[linkingIds.random()]!![edge.id]!!.size > 0)
+        Assert.assertEquals(setOf(dst.id), neighborData6[linkingIds.random()]!![edge.id]!!.keys)
 
         loginAs("admin")
 
