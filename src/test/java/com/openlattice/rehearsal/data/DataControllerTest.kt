@@ -340,7 +340,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         dataApi.createAssociations(edgesToBeCreated)
 
 
-        // Test for createAssociations( Set<DataEdgeKey> associations )
+        // Test for createEdges( Set<DataEdgeKey> associations )
         val edge2 = createEdgeEntityType()
         val esEdge2 = createEntitySet(edge2)
 
@@ -373,7 +373,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
     @Test
     fun testCreateBidirectionalEdgesWithDifferentEntityTypes() {
-        // Test for createAssociations
+        // Test for createEdges
         val edge = createEdgeEntityType()
         val esEdge = createEntitySet(edge)
         val src = createEntityType()
@@ -630,7 +630,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val ess = EntitySetSelection(Optional.of(et.properties), Optional.of(HashSet(ids)))
 
 
-        /* loadEntitySetData */
+        /* loadSelectedEntitySetData */
 
         // try to read data with no permissions on it
         loginAs("user1")
@@ -684,7 +684,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         loginAs("admin")
 
 
-        /* getEntity */
+        /* getEntity, getEntityPropertyValues */
 
         val et2 = createEntityType()
         val es2 = createEntitySet(et2)
