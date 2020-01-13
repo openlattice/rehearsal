@@ -81,7 +81,8 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         val result2 = searchApi.searchEntitySetData(simpleSearchConstraint2)
 
         Assert.assertTrue(result2.numHits > 0)
-        Assert.assertTrue(result2.hits.flatMap { it[EdmTestConstants.personGivenNameFqn]!! }.toSet().contains("Fermin"))
+        Assert.assertTrue(result2.hits.flatMap { it.getValue(EdmTestConstants.personGivenNameFqn) }.toSet()
+                .contains("Fermin"))
 
         entitySetsApi.deleteEntitySet(esLinked.id)
     }
@@ -113,7 +114,8 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         val result2 = searchApi.searchEntitySetData(advancedSearchConstraint2)
 
         Assert.assertTrue(result2.numHits > 0)
-        Assert.assertTrue(result2.hits.flatMap { it[EdmTestConstants.personSurnameFqn]!! }.toSet().contains("Morris"))
+        Assert.assertTrue(result2.hits.flatMap { it.getValue(EdmTestConstants.personSurnameFqn) }.toSet()
+                .contains("Morris"))
 
         entitySetsApi.deleteEntitySet(esLinked.id)
     }
@@ -221,9 +223,9 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         Thread.sleep(60000L) // wait for indexing
         val resultsAB = searchApi.searchEntitySetData(simpleSearchConstraint)
 
-        Assert.assertTrue(resultsAB.hits.flatMap { it[EdmTestConstants.personSurnameFqn]!! }.toSet()
-                .containsAll(resultsA1.hits.flatMap { it[EdmTestConstants.personSurnameFqn]!! }.toSet()))
-        Assert.assertTrue(resultsAB.hits.flatMap { it[EdmTestConstants.personSurnameFqn]!! }.contains("Qwe"))
+        Assert.assertTrue(resultsAB.hits.flatMap { it.getValue(EdmTestConstants.personSurnameFqn) }.toSet()
+                .containsAll(resultsA1.hits.flatMap { it.getValue(EdmTestConstants.personSurnameFqn) }.toSet()))
+        Assert.assertTrue(resultsAB.hits.flatMap { it.getValue(EdmTestConstants.personSurnameFqn) }.contains("Qwe"))
 
         entitySetsApi.removeEntitySetsFromLinkingEntitySet(esLinked.id, setOf(socratesBId))
         Thread.sleep(60000L) // wait for indexing
@@ -234,6 +236,7 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         entitySetsApi.deleteEntitySet(esLinked.id)
     }
 
+    @Suppress("UNCHECKED_CAST")
     @Test
     fun testAddPropertyType() {
         val socratesAId = entitySetsApi.getEntitySetId(importedEntitySets.keys.first())
@@ -289,7 +292,9 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         val result2 = searchApi.searchEntitySetData(simpleSearchConstraint)
         logger.info(result2.hits.toString())
 
-        Assert.assertTrue(result2.hits.map { it[EdmTestConstants.personGivenNameFqn] }.any { it?.contains("test") ?: false })
+        Assert.assertTrue(result2.hits.map { it[EdmTestConstants.personGivenNameFqn] }.any {
+            it?.contains("test") ?: false
+        })
 
 
         // Update
@@ -310,7 +315,7 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         Assert.assertEquals(result2.numHits, result3.numHits)
         Assert.assertTrue(result3.hits
                 .map { it[EdmTestConstants.personGivenNameFqn] }
-                .any { it?.contains("newtest")  ?: false })
+                .any { it?.contains("newtest") ?: false })
         Assert.assertTrue(result3.hits
                 .map { it[EdmTestConstants.personGivenNameFqn] }
                 .none { it?.contains("test") ?: true })
@@ -365,7 +370,7 @@ class SearchLinkedEntitiesTests : SetupTestData() {
 
         val result6 = searchApi.searchEntitySetData(simpleSearchConstraint)
         logger.info(result6.hits.toString())
-        Assert.assertTrue(result6.hits.none { it[EdmTestConstants.personGivenNameFqn]!!.contains("newtestt") })
+        Assert.assertTrue(result6.hits.none { it.getValue(EdmTestConstants.personGivenNameFqn).contains("newtestt") })
         Assert.assertTrue(result6.hits.any { it[EdmTestConstants.personGivenNameFqn] == setOf("newtest") })
 
         entitySetsApi.deleteEntitySet(esLinked.id)
@@ -466,7 +471,7 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         val searchTerm = SearchTerm("*", 0, 100)
         val advancedSearchTerm = AdvancedSearch(
                 listOf(SearchDetails("*", personPt, false)), 0, 100)
-        val neighborsFilter = EntityNeighborsFilter(linkingIds.toSet())
+        val neighborsFilter = EntityNeighborsFilter(mapOf(esLinking.id to linkingIds.toSet()))
 
 
         // try to read data with no permissions on it
@@ -484,9 +489,9 @@ class SearchLinkedEntitiesTests : SetupTestData() {
 
         val noNeighborData1 = searchApi.executeEntityNeighborSearch(esLinking.id, linkingId)
         Assert.assertEquals(0, noNeighborData1.size)
-        val noNeighborData2 = searchApi.executeFilteredEntityNeighborSearch(esLinking.id, neighborsFilter)
+        val noNeighborData2 = searchApi.executeFilteredEntityNeighborSearch(neighborsFilter)
         Assert.assertEquals(0, noNeighborData2.size)
-        val noNeighborData3 = searchApi.executeFilteredEntityNeighborIdsSearch(esLinking.id, neighborsFilter)
+        val noNeighborData3 = searchApi.executeFilteredEntityNeighborIdsSearch(neighborsFilter)
         Assert.assertEquals(0, noNeighborData3.size)
 
         loginAs("admin")
@@ -510,9 +515,9 @@ class SearchLinkedEntitiesTests : SetupTestData() {
 
         val noNeighborData4 = searchApi.executeEntityNeighborSearch(esLinking.id, linkingId)
         Assert.assertEquals(0, noNeighborData4.size)
-        val noNeighborData5 = searchApi.executeFilteredEntityNeighborSearch(esLinking.id, neighborsFilter)
+        val noNeighborData5 = searchApi.executeFilteredEntityNeighborSearch(neighborsFilter)
         Assert.assertEquals(0, noNeighborData5.size)
-        val noNeighborData6 = searchApi.executeFilteredEntityNeighborIdsSearch(esLinking.id, neighborsFilter)
+        val noNeighborData6 = searchApi.executeFilteredEntityNeighborIdsSearch(neighborsFilter)
         Assert.assertEquals(0, noNeighborData6.size)
 
         loginAs("admin")
@@ -540,9 +545,9 @@ class SearchLinkedEntitiesTests : SetupTestData() {
 
         val noNeighborData7 = searchApi.executeEntityNeighborSearch(esLinking.id, linkingId)
         Assert.assertEquals(0, noNeighborData7.size)
-        val noNeighborData8 = searchApi.executeFilteredEntityNeighborSearch(esLinking.id, neighborsFilter)
+        val noNeighborData8 = searchApi.executeFilteredEntityNeighborSearch(neighborsFilter)
         Assert.assertEquals(0, noNeighborData8.size)
-        val noNeighborData9 = searchApi.executeFilteredEntityNeighborIdsSearch(esLinking.id, neighborsFilter)
+        val noNeighborData9 = searchApi.executeFilteredEntityNeighborIdsSearch(neighborsFilter)
         Assert.assertEquals(0, noNeighborData9.size)
 
         loginAs("admin")
@@ -571,21 +576,21 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         Assert.assertEquals(setOf(EdmConstants.ID_FQN), noNeighborData10[0].associationDetails.keys)
         Assert.assertEquals(setOf(EdmConstants.ID_FQN), noNeighborData10[0].neighborDetails.get().keys)
 
-        val noNeighborData11 = searchApi.executeFilteredEntityNeighborSearch(esLinking.id, neighborsFilter)
+        val noNeighborData11 = searchApi.executeFilteredEntityNeighborSearch(neighborsFilter)
         Assert.assertEquals(linkingIds.size, noNeighborData11.size)
-        Assert.assertTrue(noNeighborData11[linkingIds.random()]!!.isNotEmpty())
+        Assert.assertTrue(noNeighborData11.getValue(linkingIds.random()).isNotEmpty())
         Assert.assertEquals(
                 setOf(EdmConstants.ID_FQN),
-                noNeighborData11[linkingIds.random()]!![0].associationDetails.keys)
+                noNeighborData11.getValue(linkingIds.random())[0].associationDetails.keys)
         Assert.assertEquals(
                 setOf(EdmConstants.ID_FQN),
-                noNeighborData11[linkingIds.random()]!![0].neighborDetails.get().keys)
+                noNeighborData11.getValue(linkingIds.random())[0].neighborDetails.get().keys)
 
-        val noNeighborData12 = searchApi.executeFilteredEntityNeighborIdsSearch(esLinking.id, neighborsFilter)
+        val noNeighborData12 = searchApi.executeFilteredEntityNeighborIdsSearch(neighborsFilter)
         Assert.assertEquals(linkingIds.size, noNeighborData12.size)
-        Assert.assertTrue(noNeighborData12[linkingIds.random()]!!.isNotEmpty())
-        Assert.assertTrue(noNeighborData12[linkingIds.random()]!![edge.id]!!.size > 0)
-        Assert.assertEquals(setOf(dst.id), noNeighborData12[linkingIds.random()]!![edge.id]!!.keys)
+        Assert.assertTrue(noNeighborData12.getValue(linkingIds.random()).isNotEmpty())
+        Assert.assertTrue(noNeighborData12.getValue(linkingIds.random()).getValue(edge.id).isNotEmpty())
+        Assert.assertEquals(setOf(dst.id), noNeighborData12.getValue(linkingIds.random()).getValue(edge.id).keys)
 
         loginAs("admin")
 
@@ -621,20 +626,20 @@ class SearchLinkedEntitiesTests : SetupTestData() {
                 setOf(EdmConstants.ID_FQN, propertyType.type),
                 noNeighborPtData1[0].neighborDetails.get().keys)
 
-        val noNeighborPtData2 = searchApi.executeFilteredEntityNeighborSearch(esLinking.id, neighborsFilter)
+        val noNeighborPtData2 = searchApi.executeFilteredEntityNeighborSearch(neighborsFilter)
         Assert.assertEquals(linkingIds.size, noNeighborPtData2.size)
         Assert.assertEquals(
                 setOf(EdmConstants.ID_FQN, associationPropertyType.type),
-                noNeighborPtData2[linkingIds.random()]!![0].associationDetails.keys)
+                noNeighborPtData2.getValue(linkingIds.random())[0].associationDetails.keys)
         Assert.assertEquals(
                 setOf(EdmConstants.ID_FQN, propertyType.type),
-                noNeighborPtData2[linkingIds.random()]!![0].neighborDetails.get().keys)
+                noNeighborPtData2.getValue(linkingIds.random())[0].neighborDetails.get().keys)
 
-        val noNeighborPtData3 = searchApi.executeFilteredEntityNeighborIdsSearch(esLinking.id, neighborsFilter)
+        val noNeighborPtData3 = searchApi.executeFilteredEntityNeighborIdsSearch(neighborsFilter)
         Assert.assertEquals(linkingIds.size, noNeighborPtData3.size)
-        Assert.assertTrue(noNeighborPtData3[linkingIds.random()]!!.isNotEmpty())
-        Assert.assertTrue(noNeighborPtData3[linkingIds.random()]!![edge.id]!!.size > 0)
-        Assert.assertEquals(setOf(dst.id), noNeighborPtData3[linkingIds.random()]!![edge.id]!!.keys)
+        Assert.assertTrue(noNeighborPtData3.getValue(linkingIds.random()).isNotEmpty())
+        Assert.assertTrue(noNeighborPtData3.getValue(linkingIds.random()).getValue(edge.id).isNotEmpty())
+        Assert.assertEquals(setOf(dst.id), noNeighborPtData3.getValue(linkingIds.random()).getValue(edge.id).keys)
 
         loginAs("admin")
 
@@ -670,20 +675,20 @@ class SearchLinkedEntitiesTests : SetupTestData() {
                 setOf(EdmConstants.ID_FQN, propertyType.type),
                 neighborData1[0].neighborDetails.get().keys)
 
-        val neighborData2 = searchApi.executeFilteredEntityNeighborSearch(esLinking.id, neighborsFilter)
+        val neighborData2 = searchApi.executeFilteredEntityNeighborSearch(neighborsFilter)
         Assert.assertEquals(linkingIds.size, neighborData2.size)
         Assert.assertEquals(
                 setOf(EdmConstants.ID_FQN, associationPropertyType.type),
-                neighborData2[linkingIds.random()]!![0].associationDetails.keys)
+                neighborData2.getValue(linkingIds.random())[0].associationDetails.keys)
         Assert.assertEquals(
                 setOf(EdmConstants.ID_FQN, propertyType.type),
-                neighborData2[linkingIds.random()]!![0].neighborDetails.get().keys)
+                neighborData2.getValue(linkingIds.random())[0].neighborDetails.get().keys)
 
-        val neighborData3 = searchApi.executeFilteredEntityNeighborIdsSearch(esLinking.id, neighborsFilter)
+        val neighborData3 = searchApi.executeFilteredEntityNeighborIdsSearch(neighborsFilter)
         Assert.assertEquals(linkingIds.size, neighborData3.size)
-        Assert.assertTrue(neighborData3[linkingIds.random()]!!.isNotEmpty())
-        Assert.assertTrue(neighborData3[linkingIds.random()]!![edge.id]!!.size > 0)
-        Assert.assertEquals(setOf(dst.id), neighborData3[linkingIds.random()]!![edge.id]!!.keys)
+        Assert.assertTrue(neighborData3.getValue(linkingIds.random()).isNotEmpty())
+        Assert.assertTrue(neighborData3.getValue(linkingIds.random()).getValue(edge.id).isNotEmpty())
+        Assert.assertEquals(setOf(dst.id), neighborData3.getValue(linkingIds.random()).getValue(edge.id).keys)
 
         loginAs("admin")
 
@@ -744,20 +749,20 @@ class SearchLinkedEntitiesTests : SetupTestData() {
                 et.properties.map { edmApi.getPropertyType(it).type }.toSet() + setOf(EdmConstants.ID_FQN),
                 neighborData4[0].neighborDetails.get().keys)
 
-        val neighborData5 = searchApi.executeFilteredEntityNeighborSearch(esLinking.id, neighborsFilter)
+        val neighborData5 = searchApi.executeFilteredEntityNeighborSearch(neighborsFilter)
         Assert.assertEquals(linkingIds.size, neighborData5.size)
         Assert.assertEquals(
                 at.properties.map { edmApi.getPropertyType(it).type }.toSet() + setOf(EdmConstants.ID_FQN),
-                neighborData5[linkingIds.random()]!![0].associationDetails.keys)
+                neighborData5.getValue(linkingIds.random())[0].associationDetails.keys)
         Assert.assertEquals(
                 et.properties.map { edmApi.getPropertyType(it).type }.toSet() + setOf(EdmConstants.ID_FQN),
-                neighborData5[linkingIds.random()]!![0].neighborDetails.get().keys)
+                neighborData5.getValue(linkingIds.random())[0].neighborDetails.get().keys)
 
-        val neighborData6 = searchApi.executeFilteredEntityNeighborIdsSearch(esLinking.id, neighborsFilter)
+        val neighborData6 = searchApi.executeFilteredEntityNeighborIdsSearch(neighborsFilter)
         Assert.assertEquals(linkingIds.size, neighborData6.size)
-        Assert.assertTrue(neighborData6[linkingIds.random()]!!.isNotEmpty())
-        Assert.assertTrue(neighborData6[linkingIds.random()]!![edge.id]!!.size > 0)
-        Assert.assertEquals(setOf(dst.id), neighborData6[linkingIds.random()]!![edge.id]!!.keys)
+        Assert.assertTrue(neighborData6.getValue(linkingIds.random()).isNotEmpty())
+        Assert.assertTrue(neighborData6.getValue(linkingIds.random()).getValue(edge.id).isNotEmpty())
+        Assert.assertEquals(setOf(dst.id), neighborData6.getValue(linkingIds.random()).getValue(edge.id).keys)
 
         loginAs("admin")
 

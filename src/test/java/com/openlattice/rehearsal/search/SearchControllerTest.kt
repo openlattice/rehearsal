@@ -104,7 +104,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         val searchTerm = SearchTerm("*", 0, 10)
         val advancedSearchTerm = AdvancedSearch(
                 listOf(SearchDetails("*", pt, false)), 0, 100)
-        val neighborsFilter = EntityNeighborsFilter(ids.toSet())
+        val neighborsFilter = EntityNeighborsFilter(mapOf(es.id to ids.toSet()))
 
 
         // try to read data with no permissions on it
@@ -122,9 +122,9 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
 
         val noNeighborData1 = searchApi.executeEntityNeighborSearch(es.id, id)
         Assert.assertEquals(0, noNeighborData1.size)
-        val noNeighborData2 = searchApi.executeFilteredEntityNeighborSearch(es.id, neighborsFilter)
+        val noNeighborData2 = searchApi.executeFilteredEntityNeighborSearch(neighborsFilter)
         Assert.assertEquals(0, noNeighborData2.size)
-        val noNeighborData3 = searchApi.executeFilteredEntityNeighborIdsSearch(es.id, neighborsFilter)
+        val noNeighborData3 = searchApi.executeFilteredEntityNeighborIdsSearch(neighborsFilter)
         Assert.assertEquals(0, noNeighborData3.size)
 
         loginAs("admin")
@@ -158,17 +158,17 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         Assert.assertEquals(setOf(EdmConstants.ID_FQN), noNeighborData4[0].associationDetails.keys)
         Assert.assertEquals(setOf(EdmConstants.ID_FQN), noNeighborData4[0].neighborDetails.get().keys)
 
-        val noNeighborData5 = searchApi.executeFilteredEntityNeighborSearch(es.id, neighborsFilter)
+        val noNeighborData5 = searchApi.executeFilteredEntityNeighborSearch(neighborsFilter)
         Assert.assertEquals(numberOfEntries, noNeighborData5.size)
-        Assert.assertEquals(1, noNeighborData5[ids.random()]!!.size)
-        Assert.assertEquals(setOf(EdmConstants.ID_FQN), noNeighborData5[ids.random()]!![0].associationDetails.keys)
-        Assert.assertEquals(setOf(EdmConstants.ID_FQN), noNeighborData5[ids.random()]!![0].neighborDetails.get().keys)
+        Assert.assertEquals(1, noNeighborData5.getValue(ids.random()).size)
+        Assert.assertEquals(setOf(EdmConstants.ID_FQN), noNeighborData5.getValue(ids.random())[0].associationDetails.keys)
+        Assert.assertEquals(setOf(EdmConstants.ID_FQN), noNeighborData5.getValue(ids.random())[0].neighborDetails.get().keys)
 
-        val noNeighborData6 = searchApi.executeFilteredEntityNeighborIdsSearch(es.id, neighborsFilter)
+        val noNeighborData6 = searchApi.executeFilteredEntityNeighborIdsSearch(neighborsFilter)
         Assert.assertEquals(numberOfEntries, noNeighborData6.size)
-        Assert.assertEquals(1, noNeighborData6[ids.random()]!!.size)
-        Assert.assertEquals(1, noNeighborData6[ids.random()]!![edge.id]!!.size)
-        Assert.assertEquals(setOf(dst.id), noNeighborData6[ids.random()]!![edge.id]!!.keys)
+        Assert.assertEquals(1, noNeighborData6.getValue(ids.random()).size)
+        Assert.assertEquals(1, noNeighborData6.getValue(ids.random()).getValue(edge.id).size)
+        Assert.assertEquals(setOf(dst.id), noNeighborData6.getValue(ids.random()).getValue(edge.id).keys)
 
         loginAs("admin")
 
@@ -209,22 +209,22 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         )
         Assert.assertEquals(setOf(EdmConstants.ID_FQN, propertyType.type), neighborData1[0].neighborDetails.get().keys)
 
-        val neighborData2 = searchApi.executeFilteredEntityNeighborSearch(es.id, neighborsFilter)
+        val neighborData2 = searchApi.executeFilteredEntityNeighborSearch(neighborsFilter)
         Assert.assertEquals(numberOfEntries, neighborData2.size)
         Assert.assertEquals(
                 setOf(EdmConstants.ID_FQN, associationPropertyType.type),
-                neighborData2[ids.random()]!![0].associationDetails.keys
+                neighborData2.getValue(ids.random())[0].associationDetails.keys
         )
         Assert.assertEquals(
                 setOf(EdmConstants.ID_FQN, propertyType.type),
-                neighborData2[ids.random()]!![0].neighborDetails.get().keys
+                neighborData2.getValue(ids.random())[0].neighborDetails.get().keys
         )
 
-        val neighborData3 = searchApi.executeFilteredEntityNeighborIdsSearch(es.id, neighborsFilter)
+        val neighborData3 = searchApi.executeFilteredEntityNeighborIdsSearch(neighborsFilter)
         Assert.assertEquals(numberOfEntries, neighborData3.size)
-        Assert.assertEquals(1, neighborData3[ids.random()]!!.size)
-        Assert.assertEquals(1, neighborData3[ids.random()]!![edge.id]!!.size)
-        Assert.assertEquals(setOf(dst.id), neighborData3[ids.random()]!![edge.id]!!.keys)
+        Assert.assertEquals(1, neighborData3.getValue(ids.random()).size)
+        Assert.assertEquals(1, neighborData3.getValue(ids.random()).getValue(edge.id).size)
+        Assert.assertEquals(setOf(dst.id), neighborData3.getValue(ids.random()).getValue(edge.id).keys)
 
         loginAs("admin")
 
@@ -280,20 +280,20 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
                 et.properties.map { edmApi.getPropertyType(it).type }.toSet() + setOf(EdmConstants.ID_FQN),
                 neighborData4[0].neighborDetails.get().keys)
 
-        val neighborData5 = searchApi.executeFilteredEntityNeighborSearch(es.id, neighborsFilter)
+        val neighborData5 = searchApi.executeFilteredEntityNeighborSearch(neighborsFilter)
         Assert.assertEquals(numberOfEntries, neighborData5.size)
         Assert.assertEquals(
                 edgeEt.properties.map { edmApi.getPropertyType(it).type }.toSet() + setOf(EdmConstants.ID_FQN),
-                neighborData5[ids.random()]!![0].associationDetails.keys)
+                neighborData5.getValue(ids.random())[0].associationDetails.keys)
         Assert.assertEquals(
                 et.properties.map { edmApi.getPropertyType(it).type }.toSet() + setOf(EdmConstants.ID_FQN),
-                neighborData5[ids.random()]!![0].neighborDetails.get().keys)
+                neighborData5.getValue(ids.random())[0].neighborDetails.get().keys)
 
-        val neighborData6 = searchApi.executeFilteredEntityNeighborIdsSearch(es.id, neighborsFilter)
+        val neighborData6 = searchApi.executeFilteredEntityNeighborIdsSearch(neighborsFilter)
         Assert.assertEquals(numberOfEntries, neighborData6.size)
-        Assert.assertEquals(1, neighborData6[ids.random()]!!.size)
-        Assert.assertEquals(1, neighborData6[ids.random()]!![edge.id]!!.size)
-        Assert.assertEquals(setOf(dst.id), neighborData6[ids.random()]!![edge.id]!!.keys)
+        Assert.assertEquals(1, neighborData6.getValue(ids.random()).size)
+        Assert.assertEquals(1, neighborData6.getValue(ids.random()).getValue(edge.id).size)
+        Assert.assertEquals(setOf(dst.id), neighborData6.getValue(ids.random()).getValue(edge.id).keys)
 
         loginAs("admin")
     }

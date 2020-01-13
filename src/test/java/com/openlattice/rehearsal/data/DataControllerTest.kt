@@ -171,7 +171,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val replacementProperty = propertySrc.keys.first()
         val replacement = mapOf(replacementProperty to setOf(RandomStringUtils.random(10) as Any))
 
-        val replacementMap = mapOf(ids[0]!! to replacement)
+        val replacementMap = mapOf(ids[0] to replacement)
 
         Assert.assertEquals(1, dataApi.updateEntitiesInEntitySet(es.id, replacementMap, UpdateType.PartialReplace))
 
@@ -730,7 +730,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         loginAs("user1")
         val ptData1 = dataApi.getEntity(es2.id, id)
-        Assert.assertEquals(1, ptData1[EdmConstants.ID_FQN]!!.size)
+        Assert.assertEquals(1, ptData1.getValue(EdmConstants.ID_FQN).size)
         Assert.assertEquals(setOf(EdmConstants.ID_FQN, pt.type), ptData1.keys)
         val ptData2 = dataApi.getEntityPropertyValues(es2.id, id, property)
         Assert.assertEquals(1, ptData2.size)
@@ -747,7 +747,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         loginAs("user1")
         val dataAll1 = dataApi.getEntity(es2.id, id)
-        Assert.assertEquals(1, dataAll1[EdmConstants.ID_FQN]!!.size)
+        Assert.assertEquals(1, dataAll1.getValue(EdmConstants.ID_FQN).size)
         val fqns = et2.properties.map { edmApi.getPropertyType(it).type }.toMutableSet()
         fqns.add(EdmConstants.ID_FQN)
         Assert.assertEquals(fqns, dataAll1.keys)
@@ -836,10 +836,11 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         assertException(
                 {
                     dataApi.deleteEntitiesAndNeighbors(
-                            es.id,
                             EntityNeighborsFilter(
-                                    newEntityIds.toSet(),
-                                    Optional.empty(), Optional.of(setOf(esDst.id)), Optional.empty()
+                                    mapOf(es.id to newEntityIds.toSet()),
+                                    Optional.empty(),
+                                    Optional.of(setOf(esDst.id)),
+                                    Optional.empty()
                             ),
                             DeleteType.Hard
                     )
@@ -853,19 +854,17 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         permissionsApi.updateAcl(AclData(dstOwnerAcl, Action.ADD))
 
         loginAs("user1")
-        assertException(
-                {
-                    dataApi.deleteEntitiesAndNeighbors(
-                            es.id,
-                            EntityNeighborsFilter(
-                                    newEntityIds.toSet(),
-                                    Optional.empty(), Optional.of(setOf(esDst.id)), Optional.of(setOf(esEdge.id))
-                            ),
-                            DeleteType.Hard
-                    )
-                },
-                "You must have OWNER permission of all required entity set ${esEdge.id} properties to delete entities from it."
-        )
+        assertException({
+            dataApi.deleteEntitiesAndNeighbors(
+                    EntityNeighborsFilter(
+                            mapOf(es.id to newEntityIds.toSet()),
+                            Optional.empty(),
+                            Optional.of(setOf(esDst.id)),
+                            Optional.of(setOf(esEdge.id))
+                    ),
+                    DeleteType.Hard
+            )
+        }, "You must have OWNER permission of all required entity set ${esEdge.id} properties to delete entities from it.")
         loginAs("admin")
 
 
@@ -912,19 +911,17 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         permissionsApi.updateAcl(AclData(edgeAcl, Action.ADD))
 
         loginAs("user1")
-        assertException(
-                {
-                    dataApi.deleteEntitiesAndNeighbors(
-                            es.id,
-                            EntityNeighborsFilter(
-                                    newEntityIds.toSet(),
-                                    Optional.empty(), Optional.of(setOf(esDst.id)), Optional.empty()
-                            ),
-                            DeleteType.Soft
-                    )
-                },
-                "You must have WRITE permission of all required entity set ${esEdge.id} properties to delete entities from it."
-        )
+        assertException({
+            dataApi.deleteEntitiesAndNeighbors(
+                    EntityNeighborsFilter(
+                            mapOf(es.id to newEntityIds.toSet()),
+                            Optional.empty(),
+                            Optional.of(setOf(esDst.id)),
+                            Optional.empty()
+                    ),
+                    DeleteType.Soft
+            )
+        }, "You must have WRITE permission of all required entity set ${esEdge.id} properties to delete entities from it.")
         loginAs("admin")
 
 
@@ -938,16 +935,15 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         assertException(
                 {
                     dataApi.deleteEntitiesAndNeighbors(
-                            es.id,
                             EntityNeighborsFilter(
-                                    newEntityIds.toSet(),
-                                    Optional.empty(), Optional.of(setOf(esDst.id)), Optional.empty()
+                                    mapOf(es.id to newEntityIds.toSet()),
+                                    Optional.empty(),
+                                    Optional.of(setOf(esDst.id)),
+                                    Optional.empty()
                             ),
                             DeleteType.Soft
                     )
-                },
-                "Object [${esDst.id}] is not accessible."
-        )
+                }, "Object [${esDst.id}] is not accessible.")
         loginAs("admin")
 
 
@@ -956,19 +952,17 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         permissionsApi.updateAcl(AclData(dstAcl, Action.ADD))
 
         loginAs("user1")
-        assertException(
-                {
-                    dataApi.deleteEntitiesAndNeighbors(
-                            es.id,
-                            EntityNeighborsFilter(
-                                    newEntityIds.toSet(),
-                                    Optional.empty(), Optional.of(setOf(esDst.id)), Optional.empty()
-                            ),
-                            DeleteType.Soft
-                    )
-                },
-                "You must have WRITE permission of all required entity set ${esDst.id} properties to delete entities from it."
-        )
+        assertException({
+            dataApi.deleteEntitiesAndNeighbors(
+                    EntityNeighborsFilter(
+                            mapOf(es.id to newEntityIds.toSet()),
+                            Optional.empty(),
+                            Optional.of(setOf(esDst.id)),
+                            Optional.empty()
+                    ),
+                    DeleteType.Soft
+            )
+        }, "You must have WRITE permission of all required entity set ${esDst.id} properties to delete entities from it.")
         loginAs("admin")
     }
 
@@ -1290,10 +1284,11 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         // delete from all neighbors
         val deleteCount1 = dataApi.deleteEntitiesAndNeighbors(
-                es1.id,
                 EntityNeighborsFilter(
-                        ids1.toSet(),
-                        Optional.of(setOf(esSrc1.id)), Optional.of(setOf(esDst1.id)), Optional.empty()),
+                        mapOf(es1.id to ids1.toSet()),
+                        Optional.of(setOf(esSrc1.id)),
+                        Optional.of(setOf(esDst1.id)),
+                        Optional.empty()),
                 DeleteType.Hard)
         Assert.assertEquals(30L, deleteCount1)
 
@@ -1369,10 +1364,11 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         // delete from only src neighbor
         val deleteCount2 = dataApi.deleteEntitiesAndNeighbors(
-                es2.id,
                 EntityNeighborsFilter(
-                        ids2.toSet(),
-                        Optional.of(setOf(esSrc2.id)), Optional.empty(), Optional.empty()),
+                        mapOf(es2.id to ids2.toSet()),
+                        Optional.of(setOf(esSrc2.id)),
+                        Optional.empty(),
+                        Optional.empty()),
                 DeleteType.Hard)
         Assert.assertEquals(20L, deleteCount2)
 
