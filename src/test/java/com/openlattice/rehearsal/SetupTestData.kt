@@ -22,6 +22,7 @@
 package com.openlattice.rehearsal
 
 import com.openlattice.authentication.AuthenticationTest
+import com.openlattice.rehearsal.application.SetupEnvironment
 import com.openlattice.rehearsal.authentication.MultipleAuthenticatedUsersBase
 import com.openlattice.shuttle.MissionControl
 import com.openlattice.shuttle.ShuttleCliOptions

@@ -26,11 +26,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.openlattice.analysis.AnalysisApi;
-import com.openlattice.authorization.AccessCheck;
-import com.openlattice.authorization.AclKey;
-import com.openlattice.authorization.AuthorizationsApi;
-import com.openlattice.authorization.Permission;
-import com.openlattice.authorization.PermissionsApi;
+import com.openlattice.authorization.*;
 import com.openlattice.authorization.securable.SecurableObjectType;
 import com.openlattice.client.RetrofitFactory;
 import com.openlattice.data.DataApi;
@@ -47,30 +43,14 @@ import com.openlattice.entitysets.EntitySetsApi;
 import com.openlattice.linking.LinkingFeedbackApi;
 import com.openlattice.linking.RealtimeLinkingApi;
 import com.openlattice.mapstores.TestDataFactory;
-import com.openlattice.organizations.Organization;
 import com.openlattice.organization.OrganizationsApi;
 import com.openlattice.organization.roles.Role;
+import com.openlattice.organizations.Organization;
 import com.openlattice.postgres.IndexType;
 import com.openlattice.rehearsal.GeneralException;
-import com.openlattice.rehearsal.SetupEnvironment;
+import com.openlattice.rehearsal.application.SetupEnvironment;
 import com.openlattice.requests.RequestsApi;
 import com.openlattice.search.SearchApi;
-
-import java.io.IOException;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import kotlin.Pair;
-
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -79,6 +59,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.junit.Assert;
 import retrofit2.Retrofit;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MultipleAuthenticatedUsersBase extends SetupEnvironment {
     private static final Map<String, Retrofit> retrofitMap = ImmutableMap.of(
@@ -346,7 +331,7 @@ public class MultipleAuthenticatedUsersBase extends SetupEnvironment {
         return newES;
     }
 
-    public static Pair<UUID, List<DataEdge>> createDataEdges(
+    public static Map<UUID, List<DataEdge>> createDataEdges(
             UUID edgeEntitySetId,
             UUID srcEntitySetId,
             UUID dstEntitySetId,
@@ -368,7 +353,7 @@ public class MultipleAuthenticatedUsersBase extends SetupEnvironment {
                         } )
                 .collect( Collectors.toList() );
 
-        return new Pair<>( edgeEntitySetId, edges );
+        return Map.of( edgeEntitySetId, edges );
     }
 
 

@@ -53,7 +53,7 @@ class AnalysisControllerTest : MultipleAuthenticatedUsersBase() {
         val idsDst = dataApi.createEntities(personEs.id, entriesDst)
 
         val edgeData = createDataEdges(esEdge.id, esSrc.id, personEs.id, edge.properties, idsSrc, idsDst, numberOfEntries)
-        dataApi.createAssociations(mapOf(edgeData))
+        dataApi.createAssociations(edgeData)
 
         val neighborTypes = analysisApi.getNeighborTypes( linkingEs.id )
 

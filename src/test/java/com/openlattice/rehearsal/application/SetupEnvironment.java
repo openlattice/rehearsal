@@ -19,7 +19,7 @@
  *
  */
 
-package com.openlattice.rehearsal;
+package com.openlattice.rehearsal.application;
 
 import com.auth0.json.mgmt.users.User;
 import com.geekbeast.util.RunOnce;
@@ -33,12 +33,10 @@ import com.openlattice.authorization.SystemRole;
 import com.openlattice.client.RetrofitFactory;
 import com.openlattice.data.serializers.FullQualifiedNameJacksonSerializer;
 import com.openlattice.directory.PrincipalApi;
-import com.openlattice.rhizome.proxy.RetrofitBuilders;
+import com.openlattice.rehearsal.ThrowingCallAdapterFactory;
 import kotlin.Unit;
 import okhttp3.OkHttpClient;
 import org.junit.BeforeClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import retrofit2.Retrofit;
 
@@ -50,16 +48,13 @@ import static com.google.common.base.Preconditions.checkState;
  * @author Matthew Tamayo-Rios &lt;matthew@openlattice.com&gt;
  */
 public class SetupEnvironment {
-    protected static final AuthenticationTestRequestOptions authOptions = new AuthenticationTestRequestOptions()
-            .setUsernameOrEmail( "tests@openlattice.com" )
-            .setPassword( "openlattice" );
-    protected static final AuthenticationTestRequestOptions authOptions1 = new AuthenticationTestRequestOptions()
+    private static final AuthenticationTestRequestOptions authOptions1 = new AuthenticationTestRequestOptions()
             .setUsernameOrEmail( "tests1@openlattice.com" )
             .setPassword( "abracadabra" );
-    protected static final AuthenticationTestRequestOptions authOptions2 = new AuthenticationTestRequestOptions()
+    private static final AuthenticationTestRequestOptions authOptions2 = new AuthenticationTestRequestOptions()
             .setUsernameOrEmail( "tests2@openlattice.com" )
             .setPassword( "abracadabra" );
-    protected static final AuthenticationTestRequestOptions authOptions3 = new AuthenticationTestRequestOptions()
+    private static final AuthenticationTestRequestOptions authOptions3 = new AuthenticationTestRequestOptions()
             .setUsernameOrEmail( "tests3@openlattice.com" )
             .setPassword( "abracadabra" );
 
@@ -77,9 +72,7 @@ public class SetupEnvironment {
     protected static OkHttpClient httpClient1;
     protected static OkHttpClient httpClient2;
 
-    protected static final Logger logger = LoggerFactory.getLogger( SetupEnvironment.class );
-
-    static RunOnce runOnce = new RunOnce(SetupEnvironment::initialize);
+    private static RunOnce runOnce = new RunOnce(SetupEnvironment::initialize);
 
     @BeforeClass
     public static void setupEnvironment() {
@@ -155,27 +148,8 @@ public class SetupEnvironment {
         checkState( principals.stream().anyMatch( sp -> sp.getPrincipal().getId().equals( principalId ) ) );
     }
 
-    public static Retrofit createRetrofitCallAdapter( RetrofitFactory.Environment environment, OkHttpClient httpClient ) {
-        return RetrofitBuilders.decorateWithRhizomeFactories( RetrofitBuilders
-                .createBaseRhizomeRetrofitBuilder( environment.getBaseUrl(), httpClient ) )
-                .build();
-    }
-
-
-    protected static <T> T getApiAdmin( Class<T> clazz ) {
+    public static <T> T getApiAdmin( Class<T> clazz ) {
         return retrofit.create( clazz );
-    }
-
-    protected static <T> T getApiUser1( Class<T> clazz ) {
-        return retrofit1.create( clazz );
-    }
-
-    protected static <T> T getApiUser2( Class<T> clazz ) {
-        return retrofit2.create( clazz );
-    }
-
-    protected static <T> T getApiUser3( Class<T> clazz ) {
-        return retrofit3.create( clazz );
     }
 
     private static Principal toPrincipal( String principalId ) {
