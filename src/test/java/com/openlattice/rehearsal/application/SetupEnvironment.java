@@ -37,6 +37,8 @@ import com.openlattice.rehearsal.ThrowingCallAdapterFactory;
 import kotlin.Unit;
 import okhttp3.OkHttpClient;
 import org.junit.BeforeClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import retrofit2.Retrofit;
 
@@ -48,6 +50,9 @@ import static com.google.common.base.Preconditions.checkState;
  * @author Matthew Tamayo-Rios &lt;matthew@openlattice.com&gt;
  */
 public class SetupEnvironment {
+    protected static final AuthenticationTestRequestOptions authOptions = new AuthenticationTestRequestOptions()
+            .setUsernameOrEmail( "tests1@openlattice.com" )
+            .setPassword( "openlattice" );
     private static final AuthenticationTestRequestOptions authOptions1 = new AuthenticationTestRequestOptions()
             .setUsernameOrEmail( "tests1@openlattice.com" )
             .setPassword( "abracadabra" );
@@ -71,6 +76,8 @@ public class SetupEnvironment {
     protected static OkHttpClient httpClient;
     protected static OkHttpClient httpClient1;
     protected static OkHttpClient httpClient2;
+
+    protected static final Logger logger = LoggerFactory.getLogger( SetupEnvironment.class );
 
     private static RunOnce runOnce = new RunOnce(SetupEnvironment::initialize);
 
