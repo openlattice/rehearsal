@@ -83,9 +83,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val et = createEntityType()
         val es = createEntitySet(et)
 
-        val testData = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties)
-                .values
-                .toList()
+        val testData = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties).values.toList()
         val entities = dataApi.createEntities(es.id, testData).toSet().zip(testData).toMap()
         val ess = EntitySetSelection(Optional.of(et.properties))
         val results1 = Sets.newHashSet(dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json))
@@ -94,7 +92,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         results1.forEach {
             val id = it.getValue(EdmConstants.ID_FQN).first()
             val originalData = entities.getValue(UUID.fromString(id as String))
-            it.forEach { fqn, value ->
+            it.forEach { (fqn, value) ->
                 if (fqn != EdmConstants.ID_FQN) {
                     val propertyId = edmApi.getPropertyTypeId(fqn.namespace, fqn.name)
                     Assert.assertEquals(originalData.getValue(propertyId).first(), value)
@@ -111,9 +109,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val et = createEntityType()
         val es = createEntitySet(et)
 
-        val testData = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties)
-                .values
-                .toList()
+        val testData = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties).values.toList()
         dataApi.createEntities(es.id, testData)
         val ess = EntitySetSelection(Optional.empty(), Optional.empty())
         val results = dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json).toSet()
@@ -128,8 +124,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val et = createEntityType(pt.id)
         val es = createEntitySet(et)
 
-        val testData = TestDataFactory.randomBinaryData(numberOfEntries, et.key.iterator().next(), pt.id)
-                .values.toList()
+        val testData = TestDataFactory.randomBinaryData(numberOfEntries, et.key.iterator().next(), pt.id).values.toList()
 
         dataApi.createEntities(es.id, testData)
 
