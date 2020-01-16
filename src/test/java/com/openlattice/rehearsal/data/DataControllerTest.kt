@@ -272,12 +272,11 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val idsDst = dataApi.createEntities(esDst.id, entriesDst)
 
         val edgeData = createDataEdges(es.id, et.properties, esSrc.id, idsSrc, esDst.id, idsDst)
-        val edgesToBeCreated = mapOf(edgeData)
 
-        val createdEdges = dataApi.createAssociations(edgesToBeCreated)
+        val createdEdges = dataApi.createAssociations(mapOf(edgeData))
 
         Assert.assertNotNull(createdEdges)
-        Assert.assertEquals(edgeData.second.size, createdEdges.values.size)
+        Assert.assertEquals(edgeData.second.size, createdEdges.getValue(edgeData.first).size)
 
         val ess = EntitySetSelection(
                 Optional.of(et.properties),
@@ -289,7 +288,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val edgesCreatedData = edgeData.second
         actualEdgeData.mapIndexed { index, de ->
             val edgeDataLookup = lookupEdgeDataByFqn(
-                    edgesCreatedData[numberOfEntries - index - 1].data.mapValues { it.value.toMutableSet() }.toMutableMap()
+                    edgesCreatedData[index].data.mapValues { it.value.toMutableSet() }.toMutableMap()
             )
             de
                     .filter { it.key.name != EdmConstants.ID_FQN.name }
@@ -524,20 +523,18 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         dataApi.createEntities(es.id, entities)
 
         // load selected data
-        val selectedProperties = et.properties.asSequence()
-                .filter { random.nextBoolean() }
-                .toSet()
+        val selectedProperties = et.properties.filter { random.nextBoolean() }.toSet()
         val ess = EntitySetSelection(Optional.of(selectedProperties))
-        val results = dataApi.loadSelectedEntitySetData(es.id, ess, null)
+        val results = dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json)
 
         // check results
         // For each entity, collect its property value in one set, and collect all these sets together.
         val resultValues = HashSet<Set<String>>()
         for (entity in results) {
             resultValues.add(
-                    entity.entries.asSequence()
+                    entity.entries
                             .filter { e -> !e.key.fullQualifiedNameAsString.contains("@") }
-                            .flatMap { e -> e.value.asSequence() }
+                            .flatMap { e -> e.value }
                             .map { o -> o as String }
                             .toSet()
             )
@@ -548,14 +545,10 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
             expectedValues
                     .add(
                             entity.entries
-                                    .asSequence()
                                     // filter the entries with key (propertyId) in the selected set
-                                    .filter { e ->
-                                        selectedProperties.isEmpty() || selectedProperties
-                                                .contains(e.key)
-                                    }
+                                    .filter { e -> selectedProperties.isEmpty() || selectedProperties.contains(e.key) }
                                     // Put all the property values in the same stream, and cast them back to strings
-                                    .flatMap { e -> e.value.asSequence() }
+                                    .flatMap { e -> e.value }
                                     .map { o -> o as String }
                                     .toSet()
                     )
@@ -706,7 +699,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         assertException(
                 { dataApi.getEntityPropertyValues(es2.id, id, property) },
-                "Object [${es2.id}, $property] is not accessible."
+                "Not authorized to read property type $property in entity set ${es2.id}."
         )
         loginAs("admin")
 
@@ -787,10 +780,17 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
 
         /*   HARD DELETE   */
+        val unauthorizedAclKeys: MutableSet<UUID> = mutableSetOf(es.id)
+        unauthorizedAclKeys.addAll(personEt.properties)
+
         loginAs("user1")
         assertException(
                 { dataApi.deleteEntities(es.id, newEntityIds.toSet(), DeleteType.Hard) },
-                "Object [${es.id}] is not accessible."
+                listOf(
+                        "Unable to delete from entity sets ${es.id}: missing required permissions on associations for AclKeys",
+                        es.id.toString(),
+                        personEt.properties.random().toString()
+                )
         )
         loginAs("admin")
 
