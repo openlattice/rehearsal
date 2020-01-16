@@ -24,7 +24,6 @@ package com.openlattice.rehearsal.data
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import com.google.common.cache.LoadingCache
-import com.google.common.collect.*
 import com.openlattice.authorization.*
 import com.openlattice.data.*
 import com.openlattice.data.requests.EntitySetSelection
@@ -86,7 +85,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testData = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties).values.toList()
         val entities = dataApi.createEntities(es.id, testData).toSet().zip(testData).toMap()
         val ess = EntitySetSelection(Optional.of(et.properties))
-        val results1 = Sets.newHashSet(dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json))
+        val results1 = dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json).toSet()
 
         Assert.assertEquals(numberOfEntries.toLong(), results1.size.toLong())
         results1.forEach {
@@ -95,7 +94,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
             it.forEach { (fqn, value) ->
                 if (fqn != EdmConstants.ID_FQN) {
                     val propertyId = edmApi.getPropertyTypeId(fqn.namespace, fqn.name)
-                    Assert.assertEquals(originalData.getValue(propertyId).first(), value)
+                    Assert.assertEquals(originalData.getValue(propertyId).first(), value.first())
                 }
             }
         }
@@ -129,7 +128,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         dataApi.createEntities(es.id, testData)
 
         val ess = EntitySetSelection(Optional.of(et.properties))
-        val results = Sets.newHashSet(dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json))
+        val results = dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json).toSet()
 
         Assert.assertEquals(numberOfEntries.toLong(), results.size.toLong())
     }
@@ -460,10 +459,8 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         }.toSet()
     }
 
-    private fun keyByFqn(data: Map<UUID, Set<Any>>): SetMultimap<FullQualifiedName, Any> {
-        val rekeyed: SetMultimap<FullQualifiedName, Any> = HashMultimap.create()
-        data.forEach { rekeyed.putAll(fqnCache[it.key], it.value) }
-        return rekeyed
+    private fun keyByFqn(data: Map<UUID, Set<Any>>): Map<FullQualifiedName, Set<Any>> {
+        return data.map { fqnCache[it.key] to it.value }.toMap()
     }
 
     private fun index(
@@ -503,7 +500,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         //added transformValues()
         dataApi.createEntities(es.id, testData)
         val ess = EntitySetSelection(Optional.of(et.properties))
-        val results = Sets.newHashSet(dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json))
+        val results = dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json).toSet()
 
         Assert.assertEquals(testData.size.toLong(), results.size.toLong())
         val result = results.iterator().next()
@@ -599,7 +596,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         edmApi.updatePropertyTypeMetadata(pt.id, update)
 
         val ess = EntitySetSelection(Optional.of(et.properties))
-        val results = Sets.newHashSet(dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json))
+        val results = dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json).toSet()
 
         val fqns = results.iterator().next().keys
         Assert.assertEquals(1, fqns.asSequence().filter { it.namespace == newNameSpace }.count())
