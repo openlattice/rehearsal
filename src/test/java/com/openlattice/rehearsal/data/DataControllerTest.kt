@@ -228,9 +228,9 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         Assert.assertEquals(edges.size, createdEdges)
 
         // Test permissions on entity sets. First add write permission to src,dst
-        val add = EnumSet.of(Permission.WRITE)
-        val newAcl1 = Acl(AclKey(esSrc.id), setOf(Ace(user1, add, OffsetDateTime.now(ZoneOffset.UTC))))
-        val newAcl2 = Acl(AclKey(esDst.id), setOf(Ace(user1, add, OffsetDateTime.now(ZoneOffset.UTC))))
+        val readWrite = EnumSet.of(Permission.WRITE, Permission.READ)
+        val newAcl1 = Acl(AclKey(esSrc.id), setOf(Ace(user1, readWrite, OffsetDateTime.now(ZoneOffset.UTC))))
+        val newAcl2 = Acl(AclKey(esDst.id), setOf(Ace(user1, readWrite, OffsetDateTime.now(ZoneOffset.UTC))))
 
         permissionsApi.updateAcl(AclData(newAcl1, Action.ADD))
         permissionsApi.updateAcl(AclData(newAcl2, Action.ADD))
@@ -242,7 +242,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         )
         loginAs("admin")
 
-        val newAcl3 = Acl(AclKey(esEdge.id), setOf(Ace(user1, add, OffsetDateTime.now(ZoneOffset.UTC))))
+        val newAcl3 = Acl(AclKey(esEdge.id), setOf(Ace(user1, readWrite, OffsetDateTime.now(ZoneOffset.UTC))))
         permissionsApi.updateAcl(AclData(newAcl3, Action.ADD))
 
         loginAs("user1")
