@@ -21,8 +21,6 @@
 
 package com.openlattice.rehearsal.data
 
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.SetMultimap
 import com.openlattice.authorization.*
 import com.openlattice.data.DeleteType
 import com.openlattice.data.requests.EntitySetSelection
@@ -112,16 +110,16 @@ class DataControllerLinkingTest : SetupTestData() {
             Thread.sleep(2000)
         }
 
-        val data = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json))
+        val data = dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json)
 
         //Remove the extra properties for easier equals.
         data.forEach {
-            it.removeAll(EdmConstants.ID_FQN)
-            it.removeAll(EdmConstants.LAST_INDEX_FQN)
-            it.removeAll(EdmConstants.LAST_WRITE_FQN)
+            it.remove(EdmConstants.ID_FQN)
+            it.remove(EdmConstants.LAST_INDEX_FQN)
+            it.remove(EdmConstants.LAST_WRITE_FQN)
         }
 
-        val actualGivenNamesData = data.flatMap { it[EdmTestConstants.personGivenNameFqn] }.toSet()
+        val actualGivenNamesData = data.flatMap { it.getValue(EdmTestConstants.personGivenNameFqn) }.toSet()
         val expectedGivenNamesData = givenNames.flatMap { it.getValue(EdmTestConstants.personGivenNameId) }.toSet()
 
         Assert.assertEquals(expectedGivenNamesData, actualGivenNamesData)
@@ -151,23 +149,32 @@ class DataControllerLinkingTest : SetupTestData() {
             Thread.sleep(3000)
         }
 
-        val data = ImmutableList.copyOf(
-                dataApi.loadSelectedEntitySetData(
+        val data = dataApi
+                .loadSelectedEntitySetData(
                         esLinking.id,
                         EntitySetSelection(Optional.of(setOf(personGivenNamePropertyId)), Optional.empty()),
-                        FileType.json
-                )
-        )
-        val linkingIds = data.map { UUID.fromString(it[EdmConstants.ID_FQN].first() as String) }
+                        FileType.json)
+                .toList()
+
+        val linkingIds = data.map { UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String) }
         val indexedData = index(data)
 
         linkingIds.forEach {
             val ess = EntitySetSelection(Optional.of(setOf(personGivenNamePropertyId)), Optional.of(setOf(it)))
-            val linkedEntity = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json))
+            val linkedEntity = dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json).toList()
 
             Assert.assertArrayEquals(
                     arrayOf(indexedData[it]?.get(EdmTestConstants.personGivenNameFqn)),
                     arrayOf(linkedEntity.first().get(EdmTestConstants.personGivenNameFqn))
+            )
+        }
+
+        linkingIds.forEach {
+            val linkedEntity = dataApi.getEntity(esLinking.id, it)
+
+            Assert.assertArrayEquals(
+                    arrayOf(indexedData[it]?.get(EdmTestConstants.personGivenNameFqn)),
+                    arrayOf(linkedEntity.getValue(EdmTestConstants.personGivenNameFqn))
             )
         }
     }
@@ -200,8 +207,8 @@ class DataControllerLinkingTest : SetupTestData() {
         }
 
         val ess = EntitySetSelection(Optional.of(personEt.properties), Optional.empty())
-        val data = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json))
-        val linkingIds = data.map { UUID.fromString(it[EdmConstants.ID_FQN].first() as String) }
+        val data = dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json).toList()
+        val linkingIds = data.map { UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String) }
 
         val arrayPattern = "Object \\[(.*?)\\]".toRegex()
 
@@ -259,9 +266,9 @@ class DataControllerLinkingTest : SetupTestData() {
         }
 
         loginAs("user1")
-        val noData = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json))
+        val noData = dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json).toList()
         Assert.assertEquals(linkingIds.size, noData.size)
-        noData.forEach { Assert.assertEquals(setOf(EdmConstants.ID_FQN), it.asMap().keys) }
+        noData.forEach { Assert.assertEquals(setOf(EdmConstants.ID_FQN), it.keys) }
         loginAs("admin")
 
 
@@ -275,10 +282,10 @@ class DataControllerLinkingTest : SetupTestData() {
         }
 
         loginAs("user1")
-        val givenNameData = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json))
+        val givenNameData = dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json).toList()
         Assert.assertEquals(linkingIds.size, givenNameData.size)
         givenNameData.forEach {
-            Assert.assertEquals(setOf(EdmConstants.ID_FQN, EdmTestConstants.personGivenNameFqn), it.asMap().keys)
+            Assert.assertEquals(setOf(EdmConstants.ID_FQN, EdmTestConstants.personGivenNameFqn), it.keys)
         }
         loginAs("admin")
 
@@ -292,12 +299,12 @@ class DataControllerLinkingTest : SetupTestData() {
         }
 
         loginAs("user1")
-        val dataAll = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json))
+        val dataAll = dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json).toList()
         Assert.assertEquals(linkingIds.size, dataAll.size)
         dataAll.forEach {
             Assert.assertEquals(
                     setOf(EdmConstants.ID_FQN, EdmTestConstants.personGivenNameFqn, EdmTestConstants.personMiddleNameFqn),
-                    it.asMap().keys
+                    it.keys
             )
         }
         loginAs("admin")
@@ -430,10 +437,10 @@ class DataControllerLinkingTest : SetupTestData() {
     }
 
     private fun index(
-            data: Collection<SetMultimap<FullQualifiedName, Any>>
-    ): Map<UUID, SetMultimap<FullQualifiedName, Any>> {
+            data: Collection<Map<FullQualifiedName, Set<Any>>>
+    ): Map<UUID, Map<FullQualifiedName, Set<Any>>> {
         return data.map {
-            UUID.fromString(it[EdmConstants.ID_FQN].first() as String) to it
+            UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String) to it
         }.toMap()
     }
 }

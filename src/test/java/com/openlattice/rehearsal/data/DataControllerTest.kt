@@ -92,7 +92,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         Assert.assertEquals(numberOfEntries.toLong(), results1.size.toLong())
         results1.forEach {
-            val id = it[EdmConstants.ID_FQN].first()
+            val id = it.getValue(EdmConstants.ID_FQN).first()
             val originalData = entities.getValue(UUID.fromString(id as String))
             it.forEach { fqn, value ->
                 if (fqn != EdmConstants.ID_FQN) {
@@ -116,7 +116,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
                 .toList()
         dataApi.createEntities(es.id, testData)
         val ess = EntitySetSelection(Optional.empty(), Optional.empty())
-        val results = Sets.newHashSet(dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json))
+        val results = dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json).toSet()
 
         Assert.assertEquals(numberOfEntries.toLong(), results.size.toLong())
     }
@@ -128,9 +128,9 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val et = createEntityType(pt.id)
         val es = createEntitySet(et)
 
-        val testData = ImmutableList.copyOf(
-                TestDataFactory.randomBinaryData(numberOfEntries, et.key.iterator().next(), pt.id).values
-        )
+        val testData = TestDataFactory.randomBinaryData(numberOfEntries, et.key.iterator().next(), pt.id)
+                .values.toList()
+
         dataApi.createEntities(es.id, testData)
 
         val ess = EntitySetSelection(Optional.of(et.properties))
@@ -146,7 +146,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         val testData = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties)
 
-        val entries = ImmutableList.copyOf(testData.values)
+        val entries = testData.values.toList()
         val ids = dataApi.createEntities(es.id, entries)
 
         val indexExpected = entries.mapIndexed { index, data -> ids[index] to keyByFqn(data) }.toMap()
@@ -155,14 +155,14 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
                 Optional.of(et.properties),
                 Optional.of(HashSet(ids))
         )
-        val data = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json))
+        val data = dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json)
         val indexActual = index(data)
 
         //Remove the extra properties for easier equals.
         indexActual.forEach {
-            it.value.removeAll(EdmConstants.ID_FQN)
-            it.value.removeAll(EdmConstants.LAST_INDEX_FQN)
-            it.value.removeAll(EdmConstants.LAST_WRITE_FQN)
+            it.value.remove(EdmConstants.ID_FQN)
+            it.value.remove(EdmConstants.LAST_INDEX_FQN)
+            it.value.remove(EdmConstants.LAST_WRITE_FQN)
         }
 
         Assert.assertEquals(indexExpected, indexActual)
@@ -179,16 +179,15 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
                 Optional.of(et.properties),
                 Optional.of(setOf(ids[0]))
         )
-        val data2 = ImmutableList
-                .copyOf(dataApi.loadSelectedEntitySetData(es.id, ess2, FileType.json))
+        val data2 = dataApi.loadSelectedEntitySetData(es.id, ess2, FileType.json).toList()
 
         val indexActual2 = index(data2)
 
         //Remove the extra properties for easier equals.
         indexActual2.forEach {
-            it.value.removeAll(EdmConstants.ID_FQN)
-            it.value.removeAll(EdmConstants.LAST_INDEX_FQN)
-            it.value.removeAll(EdmConstants.LAST_WRITE_FQN)
+            it.value.remove(EdmConstants.ID_FQN)
+            it.value.remove(EdmConstants.LAST_INDEX_FQN)
+            it.value.remove(EdmConstants.LAST_WRITE_FQN)
         }
 
         Assert.assertFalse(
@@ -213,13 +212,13 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties)
         val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edge.properties)
 
-        val entriesSrc = ImmutableList.copyOf(testDataSrc.values)
+        val entriesSrc = testDataSrc.values.toList()
         val idsSrc = dataApi.createEntities(esSrc.id, entriesSrc)
 
-        val entriesDst = ImmutableList.copyOf(testDataDst.values)
+        val entriesDst = testDataDst.values.toList()
         val idsDst = dataApi.createEntities(esDst.id, entriesDst)
 
-        val entriesEdge = ImmutableList.copyOf(testDataEdge.values)
+        val entriesEdge = testDataEdge.values.toList()
         val idsEdge = dataApi.createEntities(esEdge.id, entriesEdge)
 
         val edges = idsSrc.mapIndexed { index, _ ->
@@ -272,10 +271,10 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataSrc = TestDataFactory.randomStringEntityData(numberOfEntries, src.properties)
         val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties)
 
-        val entriesSrc = ImmutableList.copyOf(testDataSrc.values)
+        val entriesSrc = testDataSrc.values.toList()
         val idsSrc = dataApi.createEntities(esSrc.id, entriesSrc)
 
-        val entriesDst = ImmutableList.copyOf(testDataDst.values)
+        val entriesDst = testDataDst.values.toList()
         val idsDst = dataApi.createEntities(esDst.id, entriesDst)
 
         val edgeData = createDataEdges(es.id, et.properties, esSrc.id, idsSrc, esDst.id, idsDst)
@@ -298,7 +297,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
             val edgeDataLookup = lookupEdgeDataByFqn(
                     edgesCreatedData[numberOfEntries - index - 1].data.mapValues { it.value.toMutableSet() }.toMutableMap()
             )
-            de.asMap()
+            de
                     .filter { it.key.name != EdmConstants.ID_FQN.name }
                     .forEach { (fqn, data) -> Assert.assertEquals(data, edgeDataLookup[fqn]) }
         }
@@ -320,10 +319,10 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataSrc = TestDataFactory.randomStringEntityData(numberOfEntries, src.properties)
         val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties)
 
-        val entriesSrc = ImmutableList.copyOf(testDataSrc.values)
+        val entriesSrc = testDataSrc.values.toList()
         val idsSrc = dataApi.createEntities(esSrc.id, entriesSrc)
 
-        val entriesDst = ImmutableList.copyOf(testDataDst.values)
+        val entriesDst = testDataDst.values.toList()
         val idsDst = dataApi.createEntities(esDst.id, entriesDst)
 
         val edgeData = createDataEdges(esEdge1.id, edge1.properties, esSrc.id, idsSrc, esDst.id, idsDst)
@@ -348,7 +347,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         createAssociationType(edge2, setOf(), setOf())
 
         val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edge2.properties)
-        val entriesEdge = ImmutableList.copyOf(testDataEdge.values)
+        val entriesEdge = testDataEdge.values.toList()
         val idsEdge = dataApi.createEntities(esEdge2.id, entriesEdge)
 
         val edges = idsSrc.mapIndexed { index, _ ->
@@ -388,13 +387,13 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties)
         val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edge.properties)
 
-        val entriesSrc = ImmutableList.copyOf(testDataSrc.values)
+        val entriesSrc = testDataSrc.values.toList()
         val idsSrc = dataApi.createEntities(esSrc.id, entriesSrc)
 
-        val entriesDst = ImmutableList.copyOf(testDataDst.values)
+        val entriesDst = testDataDst.values.toList()
         val idsDst = dataApi.createEntities(esDst.id, entriesDst)
 
-        val entriesEdge = ImmutableList.copyOf(testDataEdge.values)
+        val entriesEdge = testDataEdge.values.toList()
         val idsEdge = dataApi.createEntities(esEdge.id, entriesEdge)
 
         val edgeData1 = createDataEdges(esEdge.id, edge.properties, esSrc.id, idsSrc, esDst.id, idsDst)
@@ -439,7 +438,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
             dstEntitySetId: UUID,
             dstIds: List<UUID>
     ): Pair<UUID, List<DataEdge>> {
-        val edgeData = ImmutableList.copyOf(TestDataFactory.randomStringEntityData(numberOfEntries, properties).values)
+        val edgeData = TestDataFactory.randomStringEntityData(numberOfEntries, properties).values.toList()
 
         val edges = srcIds.mapIndexed { index, _ ->
             val srcDataKey = EntityDataKey(srcEntitySetId, srcIds[index])
@@ -473,10 +472,10 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
     }
 
     private fun index(
-            data: Collection<SetMultimap<FullQualifiedName, Any>>
-    ): Map<UUID, SetMultimap<FullQualifiedName, Any>> {
+            data: Iterable<Map<FullQualifiedName, Set<Any>>>
+    ): Map<UUID, MutableMap<FullQualifiedName, Set<Any>>> {
         return data.map {
-            UUID.fromString(it[EdmConstants.ID_FQN].first() as String) to it
+            UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String) to it.toMutableMap()
         }.toMap()
     }
 
@@ -489,7 +488,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val et = TestDataFactory.entityType(k)
 
         et.removePropertyTypes(et.properties)
-        et.addPropertyTypes(ImmutableSet.of(k.id, p1.id, p2.id))
+        et.addPropertyTypes(setOf(k.id, p1.id, p2.id))
 
         val entityTypeId = edmApi.createEntityType(et)
         Assert.assertNotNull("Entity type creation shouldn't return null UUID.", entityTypeId)
@@ -513,8 +512,8 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         Assert.assertEquals(testData.size.toLong(), results.size.toLong())
         val result = results.iterator().next()
-        val p1v = OffsetDateTime.parse(result.get(p1.type).iterator().next() as CharSequence)
-        val p2v = LocalDate.parse(result.get(p2.type).iterator().next() as CharSequence)
+        val p1v = OffsetDateTime.parse(result.getValue(p1.type).first() as CharSequence)
+        val p2v = LocalDate.parse(result.getValue(p2.type).first() as CharSequence)
         //There is a problem with the represenation of the DateTime of pv1, gets truncated. Instead code now
         //compares if odt and p1v are within 100 milliseconds
         val odtMillisec = odt.nano / 1000000
@@ -529,9 +528,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val es = createEntitySet(et)
 
         //added transformValues()
-        val entities = ImmutableList.copyOf(
-                TestDataFactory.randomStringEntityData(numberOfEntries, et.properties).values
-        )
+        val entities = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties).values.toList()
         dataApi.createEntities(es.id, entities)
 
         // load selected data
@@ -546,7 +543,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val resultValues = HashSet<Set<String>>()
         for (entity in results) {
             resultValues.add(
-                    entity.asMap().entries.asSequence()
+                    entity.entries.asSequence()
                             .filter { e -> !e.key.fullQualifiedNameAsString.contains("@") }
                             .flatMap { e -> e.value.asSequence() }
                             .map { o -> o as String }
@@ -582,9 +579,8 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val es = createEntitySet(et)
 
         // add test data
-        val testData = ImmutableList.copyOf(
-                TestDataFactory.randomStringEntityData(1, et.properties).values
-        )
+        val testData = TestDataFactory.randomStringEntityData(1, et.properties).values.toList()
+
         dataApi.createEntities(es.id, testData)
 
         val oldNameSpace = pt.type.namespace
@@ -610,7 +606,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val ess = EntitySetSelection(Optional.of(et.properties))
         val results = Sets.newHashSet(dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json))
 
-        val fqns = results.iterator().next().keys()
+        val fqns = results.iterator().next().keys
         Assert.assertEquals(1, fqns.asSequence().filter { it.namespace == newNameSpace }.count())
         Assert.assertEquals(0, fqns.asSequence().filter { it.namespace == oldNameSpace }.count())
     }
@@ -623,7 +619,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         val testData = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties)
 
-        val entries = ImmutableList.copyOf(testData.values)
+        val entries = testData.values.toList()
         val ids = dataApi.createEntities(es.id, entries)
 
         val indexExpected = entries.mapIndexed { index, data -> ids[index] to keyByFqn(data) }.toMap()
@@ -646,9 +642,9 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         permissionsApi.updateAcl(AclData(esReadAcl, Action.ADD))
 
         loginAs("user1")
-        val noData = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json))
+        val noData = dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json).toList()
         Assert.assertEquals(numberOfEntries, noData.size)
-        noData.forEach { Assert.assertEquals(setOf(EdmConstants.ID_FQN), it.asMap().keys) }
+        noData.forEach { Assert.assertEquals(setOf(EdmConstants.ID_FQN), it.keys) }
         loginAs("admin")
 
 
@@ -657,9 +653,9 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val pt1ReadAcl = Acl(AclKey(es.id, pt1.id), setOf(Ace(user1, readPermission, OffsetDateTime.MAX)))
         permissionsApi.updateAcl(AclData(pt1ReadAcl, Action.ADD))
         loginAs("user1")
-        val pt1Data = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json))
+        val pt1Data = dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json).toList()
         Assert.assertEquals(numberOfEntries, pt1Data.size)
-        pt1Data.forEach { Assert.assertEquals(setOf(EdmConstants.ID_FQN, pt1.type), it.asMap().keys) }
+        pt1Data.forEach { Assert.assertEquals(setOf(EdmConstants.ID_FQN, pt1.type), it.keys) }
         loginAs("admin")
 
 
@@ -670,14 +666,14 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         }
 
         loginAs("user1")
-        val dataAll = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json))
+        val dataAll = dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json)
         val indexActualAll = index(dataAll)
 
         //Remove the extra properties for easier equals.
         indexActualAll.forEach {
-            it.value.removeAll(EdmConstants.ID_FQN)
-            it.value.removeAll(EdmConstants.LAST_INDEX_FQN)
-            it.value.removeAll(EdmConstants.LAST_WRITE_FQN)
+            it.value.remove(EdmConstants.ID_FQN)
+            it.value.remove(EdmConstants.LAST_INDEX_FQN)
+            it.value.remove(EdmConstants.LAST_WRITE_FQN)
         }
 
         Assert.assertEquals(indexExpected, indexActualAll)
@@ -691,7 +687,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         val testData2 = TestDataFactory.randomStringEntityData(1, et2.properties)
 
-        val entries2 = ImmutableList.copyOf(testData2.values)
+        val entries2 = testData2.values.toList()
         val id = dataApi.createEntities(es2.id, entries2)[0]
         val property = et2.properties.first()
 
@@ -782,10 +778,10 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties)
         val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edge.properties)
 
-        val entriesDst = ImmutableList.copyOf(testDataDst.values)
+        val entriesDst = testDataDst.values.toList()
         val idsDst = dataApi.createEntities(esDst.id, entriesDst)
 
-        val entriesEdge = ImmutableList.copyOf(testDataEdge.values)
+        val entriesEdge = testDataEdge.values.toList()
         val idsEdge = dataApi.createEntities(esEdge.id, entriesEdge)
 
         val edges = newEntityIds.mapIndexed { index, _ ->
@@ -1002,10 +998,10 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataSrc = TestDataFactory.randomStringEntityData(numberOfEntries, src.properties)
         val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties)
 
-        val entriesSrc = ImmutableList.copyOf(testDataSrc.values)
+        val entriesSrc = testDataSrc.values.toList()
         val idsSrc = dataApi.createEntities(esSrc.id, entriesSrc)
 
-        val entriesDst = ImmutableList.copyOf(testDataDst.values)
+        val entriesDst = testDataDst.values.toList()
         val idsDst = dataApi.createEntities(esDst.id, entriesDst)
 
         val edgeData = createDataEdges(aes.id, et.properties, esSrc.id, idsSrc, esDst.id, idsDst)
@@ -1045,10 +1041,10 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties)
         val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edge.properties)
 
-        val entriesDst = ImmutableList.copyOf(testDataDst.values)
+        val entriesDst = testDataDst.values.toList()
         val idsDst = dataApi.createEntities(esDst.id, entriesDst)
 
-        val entriesEdge = ImmutableList.copyOf(testDataEdge.values)
+        val entriesEdge = testDataEdge.values.toList()
         val idsEdge = dataApi.createEntities(esEdge.id, entriesEdge)
 
         val edges = newEntityIds.mapIndexed { index, _ ->
@@ -1080,10 +1076,10 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
             it[EdmTestConstants.personGivenNameFqn] == entries.first().values
         })
         Assert.assertTrue(loadedEntries1.none {
-            it[EdmConstants.ID_FQN].first() == newEntityIds.first().toString()
+            it.getValue(EdmConstants.ID_FQN).first() == newEntityIds.first().toString()
         })
         Assert.assertTrue(loadedEntriesEdge1.none {
-            it[EdmConstants.ID_FQN].first() == idsEdge.first().toString()
+            it.getValue(EdmConstants.ID_FQN).first() == idsEdge.first().toString()
         })
 
         // soft delete last entity
@@ -1105,10 +1101,10 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
             it[EdmTestConstants.personGivenNameFqn] == entries.last().values
         })
         Assert.assertTrue(loadedEntries2.none {
-            it[EdmConstants.ID_FQN].last() == newEntityIds.last().toString()
+            it.getValue(EdmConstants.ID_FQN).last() == newEntityIds.last().toString()
         })
         Assert.assertTrue(loadedEntriesEdge2.none {
-            it[EdmConstants.ID_FQN].last() == idsEdge.last().toString()
+            it.getValue(EdmConstants.ID_FQN).last() == idsEdge.last().toString()
         })
     }
 
@@ -1134,10 +1130,10 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties)
         val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edge.properties)
 
-        val entriesDst = ImmutableList.copyOf(testDataDst.values)
+        val entriesDst = testDataDst.values.toList()
         val idsDst = dataApi.createEntities(esDst.id, entriesDst)
 
-        val entriesEdge = ImmutableList.copyOf(testDataEdge.values)
+        val entriesEdge = testDataEdge.values.toList()
         val idsEdge = dataApi.createEntities(esEdge.id, entriesEdge)
 
         val edges = newEntityIds.mapIndexed { index, _ ->
@@ -1404,7 +1400,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         val testData = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties)
 
-        val entries = ImmutableList.copyOf(testData.values)
+        val entries = testData.values.toList()
         dataApi.createEntities(es.id, entries)
 
         Assert.assertEquals(0L, dataApi.getEntitySetSize(es.id))
