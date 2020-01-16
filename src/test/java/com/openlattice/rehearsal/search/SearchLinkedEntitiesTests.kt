@@ -429,8 +429,8 @@ class SearchLinkedEntitiesTests : SetupTestData() {
 
         // create data with admin
         val numberOfEntries = esData1.size + esData2.size
-        val ids1 = esData1.map { UUID.fromString(it[EdmConstants.ID_FQN].first() as String) }
-        val ids2 = esData2.map { UUID.fromString(it[EdmConstants.ID_FQN].first() as String) }
+        val ids1 = esData1.map { UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String) }
+        val ids2 = esData2.map { UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String) }
 
         // add association to linkingEs
         val at = createEdgeEntityType()
@@ -462,7 +462,7 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         dataApi.createEdges(edges)
 
         val data = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json))
-        val linkingIds = data.map { UUID.fromString(it[EdmConstants.ID_FQN].first() as String) }
+        val linkingIds = data.map { UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String) }
         val linkingId = linkingIds.random()
 
         // setup basic search parameters
