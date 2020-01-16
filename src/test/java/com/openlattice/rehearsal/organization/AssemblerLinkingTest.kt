@@ -20,7 +20,6 @@
  */
 package com.openlattice.rehearsal.organization
 
-import com.google.common.collect.ImmutableList
 import com.openlattice.authorization.*
 import com.openlattice.data.DataEdgeKey
 import com.openlattice.data.DeleteType
@@ -264,7 +263,7 @@ class AssemblerLinkingTest : AssemblerTestBase() {
 
         // get linking ids
         val ess = EntitySetSelection(Optional.of(personEt.properties))
-        val data1 = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json))
+        val data1 = dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json)
         val linkingIds1 = data1.map { UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String) }.toSet()
 
         // materialize entity set with all it's properties, no refresh
@@ -310,7 +309,7 @@ class AssemblerLinkingTest : AssemblerTestBase() {
         )
 
         // check linking ids
-        val data12 = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json))
+        val data12 = dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json)
         val linkingIds12 = data12.map { UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String) }.toSet()
 
         organizationDataSource.connection.use { connection ->
@@ -345,7 +344,7 @@ class AssemblerLinkingTest : AssemblerTestBase() {
         )
 
         // check linking ids
-        val data2 = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json))
+        val data2 = dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json)
         val linkingIds2 = data2.map { UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String) }.toSet()
 
         organizationDataSource.connection.use { connection ->

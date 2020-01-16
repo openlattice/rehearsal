@@ -1,8 +1,5 @@
 package com.openlattice.rehearsal.analysis
 
-import com.google.common.collect.ArrayListMultimap
-import com.google.common.collect.ListMultimap
-import com.openlattice.data.DataEdge
 import com.openlattice.mapstores.TestDataFactory
 import com.openlattice.rehearsal.authentication.MultipleAuthenticatedUsersBase
 import com.openlattice.rehearsal.edm.EdmTestConstants
@@ -10,7 +7,6 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind
 import org.junit.Assert
 import org.junit.BeforeClass
 import org.junit.Test
-import java.util.*
 
 
 class AnalysisControllerTest : MultipleAuthenticatedUsersBase() {

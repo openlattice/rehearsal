@@ -1,7 +1,6 @@
 package com.openlattice.rehearsal.search
 
 import com.google.common.base.Strings
-import com.google.common.collect.ImmutableList
 import com.openlattice.authorization.*
 import com.openlattice.data.DataEdgeKey
 import com.openlattice.data.DeleteType
@@ -75,16 +74,13 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         val associationPropertyType = edmApi.getPropertyType(apt)
 
         val numberOfEntries = 10
-        val testData = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties)
-        val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties)
-        val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edgeEt.properties)
+        val entries = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties).values.toList()
+        val entriesDst = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties).values.toList()
+        val entriesEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edgeEt.properties).values.toList()
 
-        val entries = ImmutableList.copyOf(testData.values)
         val ids = dataApi.createEntities(es.id, entries)
         val id = ids.first()
-        val entriesDst = ImmutableList.copyOf(testDataDst.values)
         val idsDst = dataApi.createEntities(dst.id, entriesDst)
-        val entriesEdge = ImmutableList.copyOf(testDataEdge.values)
         val idsEdge = dataApi.createEntities(edge.id, entriesEdge)
 
 

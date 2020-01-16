@@ -21,7 +21,6 @@
 
 package com.openlattice.rehearsal.linking
 
-import com.google.common.collect.ImmutableSet
 import com.openlattice.data.EntityDataKey
 import com.openlattice.edm.EdmConstants
 import com.openlattice.edm.EntitySet
@@ -91,8 +90,7 @@ class LinkingFeedbackTest : SetupTestData() {
             val matchedEntities = realtimeLinkingApi.getMatchedEntitiesForLinkingId(linkingId)
 
             // skip 1, so not all of them gets positive feedback
-            allEntities = ImmutableSet.copyOf(matchedEntities
-                    .flatMap { setOf(it.entityPair.first, it.entityPair.second) }).toList()
+            allEntities = matchedEntities.flatMap { setOf(it.entityPair.first, it.entityPair.second) }.toList()
 
             nonLinkingEntity = allEntities[Random.nextInt(allEntities.size)]
         }

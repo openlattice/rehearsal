@@ -1,7 +1,6 @@
 package com.openlattice.rehearsal.organization
 
 import com.google.common.collect.ArrayListMultimap
-import com.google.common.collect.ImmutableList
 import com.google.common.collect.ListMultimap
 import com.openlattice.assembler.AssemblerConnectionManager
 import com.openlattice.assembler.PostgresDatabases
@@ -63,17 +62,12 @@ class AssemblerTest : AssemblerTestBase() {
         // create association type with defining src and dst entity types
         createAssociationType(edge, setOf(src), setOf(dst))
 
-        val testDataSrc = TestDataFactory.randomStringEntityData(numberOfEntities, src.properties)
-        val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntities, dst.properties)
-        val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntities, edge.properties)
+        val entitiesSrc = TestDataFactory.randomStringEntityData(numberOfEntities, src.properties).values.toList()
+        val entitiesDst = TestDataFactory.randomStringEntityData(numberOfEntities, dst.properties).values.toList()
+        val entitiesEdge = TestDataFactory.randomStringEntityData(numberOfEntities, edge.properties).values.toList()
 
-        val entitiesSrc = ImmutableList.copyOf(testDataSrc.values)
         val idsSrc = dataApi.createEntities(esSrc.id, entitiesSrc)
-
-        val entitiesDst = ImmutableList.copyOf(testDataDst.values)
         val idsDst = dataApi.createEntities(esDst.id, entitiesDst)
-
-        val entitiesEdge = ImmutableList.copyOf(testDataEdge.values)
         val idsEdge = dataApi.createEntities(esEdge.id, entitiesEdge)
 
         val edges = idsSrc.mapIndexed { index, _ ->
@@ -394,17 +388,12 @@ class AssemblerTest : AssemblerTestBase() {
 
 
         // add data and edges
-        val testDataSrc = TestDataFactory.randomStringEntityData(numberOfEntities, src.properties)
-        val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntities, dst.properties)
-        val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntities, edge.properties)
+        val entitiesSrc = TestDataFactory.randomStringEntityData(numberOfEntities, src.properties).values.toList()
+        val entitiesDst = TestDataFactory.randomStringEntityData(numberOfEntities, dst.properties).values.toList()
+        val entitiesEdge = TestDataFactory.randomStringEntityData(numberOfEntities, edge.properties).values.toList()
 
-        val entitiesSrc = ImmutableList.copyOf(testDataSrc.values)
         val idsSrc = dataApi.createEntities(esSrc.id, entitiesSrc)
-
-        val entitiesDst = ImmutableList.copyOf(testDataDst.values)
         val idsDst = dataApi.createEntities(esDst.id, entitiesDst)
-
-        val entitiesEdge = ImmutableList.copyOf(testDataEdge.values)
         val idsEdge = dataApi.createEntities(esEdge.id, entitiesEdge)
 
         val edges = idsSrc.mapIndexed { index, _ ->
@@ -851,17 +840,12 @@ class AssemblerTest : AssemblerTestBase() {
         // create association type with defining src and dst entity types
         createAssociationType(edge, setOf(src), setOf(dst))
 
-        val testDataSrc = TestDataFactory.randomStringEntityData(numberOfEntities, src.properties)
-        val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntities, dst.properties)
-        val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntities, edge.properties)
+        val entitiesSrc = TestDataFactory.randomStringEntityData(numberOfEntities, src.properties).values.toList()
+        val entitiesDst = TestDataFactory.randomStringEntityData(numberOfEntities, dst.properties).values.toList()
+        val entitiesEdge = TestDataFactory.randomStringEntityData(numberOfEntities, edge.properties).values.toList()
 
-        val entitiesSrc = ImmutableList.copyOf(testDataSrc.values)
         val idsSrc = dataApi.createEntities(esSrc.id, entitiesSrc)
-
-        val entitiesDst = ImmutableList.copyOf(testDataDst.values)
         val idsDst = dataApi.createEntities(esDst.id, entitiesDst)
-
-        val entitiesEdge = ImmutableList.copyOf(testDataEdge.values)
         val idsEdge = dataApi.createEntities(esEdge.id, entitiesEdge)
 
         val edges = idsSrc.mapIndexed { index, _ ->
@@ -966,8 +950,7 @@ class AssemblerTest : AssemblerTestBase() {
         val es = createEntitySet(et)
 
         // add data
-        val testData = TestDataFactory.randomStringEntityData(numberOfEntities, et.properties)
-        val entities = ImmutableList.copyOf(testData.values)
+        val entities = TestDataFactory.randomStringEntityData(numberOfEntities, et.properties).values.toList()
         dataApi.createEntities(es.id, entities)
 
         // materialize entity set
@@ -1027,8 +1010,7 @@ class AssemblerTest : AssemblerTestBase() {
         val et = createEntityType()
         val es = createEntitySet(et, organizationID)
 
-        val testData = TestDataFactory.randomStringEntityData(numberOfEntities, et.properties)
-        val entities = ImmutableList.copyOf(testData.values)
+        val entities = TestDataFactory.randomStringEntityData(numberOfEntities, et.properties).values.toList()
         dataApi.createEntities(es.id, entities)
 
         grantMaterializePermissions(organization, es, setOf())
@@ -1160,8 +1142,7 @@ class AssemblerTest : AssemblerTestBase() {
         val es = createEntitySet(et)
 
         // add data
-        val testData = TestDataFactory.randomStringEntityData(numberOfEntities, et.properties)
-        val entities = ImmutableList.copyOf(testData.values)
+        val entities = TestDataFactory.randomStringEntityData(numberOfEntities, et.properties).values.toList()
         dataApi.createEntities(es.id, entities)
 
         // integrate data from local db to org openlattice schema

@@ -1,6 +1,5 @@
 package com.openlattice.rehearsal.search
 
-import com.google.common.collect.ImmutableList
 import com.google.common.collect.Lists
 import com.openlattice.authorization.*
 import com.openlattice.data.DataEdgeKey
@@ -442,12 +441,10 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         val dst = createEntitySet(et)
         val edge = createEntitySet(at)
 
-        val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties)
-        val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntries, at.properties)
+        val entriesDst = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties).values.toList()
+        val entriesEdge = TestDataFactory.randomStringEntityData(numberOfEntries, at.properties).values.toList()
 
-        val entriesDst = ImmutableList.copyOf(testDataDst.values)
         val idsDst = dataApi.createEntities(dst.id, entriesDst)
-        val entriesEdge = ImmutableList.copyOf(testDataEdge.values)
         val idsEdge = dataApi.createEntities(edge.id, entriesEdge)
 
 
@@ -461,7 +458,7 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         }.toSet()
         dataApi.createEdges(edges)
 
-        val data = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json))
+        val data = dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json)
         val linkingIds = data.map { UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String) }
         val linkingId = linkingIds.random()
 

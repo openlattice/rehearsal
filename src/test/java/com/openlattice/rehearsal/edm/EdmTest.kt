@@ -21,7 +21,6 @@
 
 package com.openlattice.rehearsal.edm
 
-import com.google.common.collect.ImmutableList
 import com.openlattice.data.requests.EntitySetSelection
 import com.openlattice.data.requests.FileType
 import com.openlattice.edm.requests.MetadataUpdate
@@ -143,8 +142,8 @@ class EdmTest : MultipleAuthenticatedUsersBase() {
         val et = createEntityType(pt1.id)
         val es = createEntitySet(et)
 
-        val testData1 = TestDataFactory.randomStringEntityData(1, et.properties)
-        val ids1 = dataApi.createEntities(es.id, ImmutableList.copyOf(testData1.values)).toSet()
+        val testData1 = TestDataFactory.randomStringEntityData(1, et.properties).values.toList()
+        val ids1 = dataApi.createEntities(es.id, testData1).toSet()
 
         val ess1 = EntitySetSelection(Optional.empty(), Optional.of(ids1))
         Assert.assertEquals(3, dataApi.loadSelectedEntitySetData(es.id, ess1, FileType.json).first().keys.size)
@@ -155,8 +154,8 @@ class EdmTest : MultipleAuthenticatedUsersBase() {
         Assert.assertEquals((et.properties + pt2.id), edmApi.getEntityType(et.id).properties)
         Assert.assertEquals(3, dataApi.loadSelectedEntitySetData(es.id, ess1, FileType.json).first().keys.size)
 
-        val testData2 = TestDataFactory.randomStringEntityData(1, (et.properties + pt2.id))
-        val ids2 = dataApi.createEntities(es.id, ImmutableList.copyOf(testData2.values)).toSet()
+        val testData2 = TestDataFactory.randomStringEntityData(1, (et.properties + pt2.id)).values.toList()
+        val ids2 = dataApi.createEntities(es.id, testData2).toSet()
         val ess2 = EntitySetSelection(Optional.empty(), Optional.of(ids1 + ids2))
         Assert.assertEquals(
                 4,
