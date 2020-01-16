@@ -265,7 +265,7 @@ class AssemblerLinkingTest : AssemblerTestBase() {
         // get linking ids
         val ess = EntitySetSelection(Optional.of(personEt.properties))
         val data1 = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json))
-        val linkingIds1 = data1.map { UUID.fromString(it[EdmConstants.ID_FQN].first() as String) }.toSet()
+        val linkingIds1 = data1.map { UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String) }.toSet()
 
         // materialize entity set with all it's properties, no refresh
         grantMaterializePermissions(organization, esLinking, personEt.properties)
@@ -311,7 +311,7 @@ class AssemblerLinkingTest : AssemblerTestBase() {
 
         // check linking ids
         val data12 = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json))
-        val linkingIds12 = data12.map { UUID.fromString(it[EdmConstants.ID_FQN].first() as String) }.toSet()
+        val linkingIds12 = data12.map { UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String) }.toSet()
 
         organizationDataSource.connection.use { connection ->
             connection.createStatement().use { stmt ->
@@ -346,7 +346,7 @@ class AssemblerLinkingTest : AssemblerTestBase() {
 
         // check linking ids
         val data2 = ImmutableList.copyOf(dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json))
-        val linkingIds2 = data2.map { UUID.fromString(it[EdmConstants.ID_FQN].first() as String) }.toSet()
+        val linkingIds2 = data2.map { UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String) }.toSet()
 
         organizationDataSource.connection.use { connection ->
             connection.createStatement().use { stmt ->
@@ -416,11 +416,10 @@ class AssemblerLinkingTest : AssemblerTestBase() {
         //  read data with linking ids
         val ess = EntitySetSelection(Optional.of(setOf(EdmTestConstants.personGivenNameId)))
         val loadedDataWithLinkingId = dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json).map {
-            val values = it.asMap()
-            val id = UUID.fromString(it[EdmConstants.ID_FQN].first() as String)
-            values.remove(EdmConstants.ID_FQN)
+            val id = UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String)
+            it.remove(EdmConstants.ID_FQN)
 
-            id to values
+            id to it
         }.toMap()
 
         // refresh
@@ -479,11 +478,10 @@ class AssemblerLinkingTest : AssemblerTestBase() {
         }
 
         val newLoadedDataWithLinkingId = dataApi.loadSelectedEntitySetData(esLinking.id, ess, FileType.json).map {
-            val values = it.asMap()
-            val id = UUID.fromString(it[EdmConstants.ID_FQN].first() as String)
-            values.remove(EdmConstants.ID_FQN)
+            val id = UUID.fromString(it.getValue(EdmConstants.ID_FQN).first() as String)
+            it.remove(EdmConstants.ID_FQN)
 
-            id to values
+            id to it
         }.toMap()
 
         // refresh
