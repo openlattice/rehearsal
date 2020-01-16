@@ -225,7 +225,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val createdEdges = dataApi.createEdges(edges)
 
         Assert.assertNotNull(createdEdges)
-        Assert.assertEquals(edges.size * 3, createdEdges)
+        Assert.assertEquals(edges.size, createdEdges)
 
         // Test permissions on entity sets. First add write permission to src,dst
         val add = EnumSet.of(Permission.WRITE)
