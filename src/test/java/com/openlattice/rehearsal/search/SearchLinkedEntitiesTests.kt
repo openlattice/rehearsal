@@ -1,6 +1,5 @@
 package com.openlattice.rehearsal.search
 
-import com.google.common.collect.Lists
 import com.openlattice.authorization.*
 import com.openlattice.data.DataEdgeKey
 import com.openlattice.data.DeleteType
@@ -127,7 +126,7 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         val simpleSearchConstraint = SearchConstraints
                 .simpleSearchConstraints(arrayOf(esLinked.id), 0, 100, "*")
         val result = searchApi.searchEntitySetData(simpleSearchConstraint)
-        Assert.assertEquals(DataSearchResult(0, Lists.newArrayList()), result)
+        Assert.assertEquals(DataSearchResult(0, listOf()), result)
 
         entitySetsApi.deleteEntitySet(esLinked.id)
     }
@@ -146,7 +145,7 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         Thread.sleep(60000L) // wait for indexing to finish
 
         Assert.assertEquals(
-                DataSearchResult(0, Lists.newArrayList()),
+                DataSearchResult(0, listOf()),
                 searchApi.searchEntitySetData(simpleSearchConstraint))
         Assert.assertTrue(result.numHits > 0)
     }
