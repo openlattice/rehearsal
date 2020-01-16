@@ -147,20 +147,20 @@ class EdmTest : MultipleAuthenticatedUsersBase() {
         val ids1 = dataApi.createEntities(es.id, ImmutableList.copyOf(testData1.values)).toSet()
 
         val ess1 = EntitySetSelection(Optional.empty(), Optional.of(ids1))
-        Assert.assertEquals(3, dataApi.loadSelectedEntitySetData(es.id, ess1, FileType.json).first().keySet().size)
+        Assert.assertEquals(3, dataApi.loadSelectedEntitySetData(es.id, ess1, FileType.json).first().keys.size)
         Assert.assertEquals(2, edmApi.getEntityType(et.id).properties.size)
 
         val pt2 = createPropertyType()
         edmApi.addPropertyTypeToEntityType(et.id, pt2.id)
         Assert.assertEquals((et.properties + pt2.id), edmApi.getEntityType(et.id).properties)
-        Assert.assertEquals(3, dataApi.loadSelectedEntitySetData(es.id, ess1, FileType.json).first().keySet().size)
+        Assert.assertEquals(3, dataApi.loadSelectedEntitySetData(es.id, ess1, FileType.json).first().keys.size)
 
         val testData2 = TestDataFactory.randomStringEntityData(1, (et.properties + pt2.id))
         val ids2 = dataApi.createEntities(es.id, ImmutableList.copyOf(testData2.values)).toSet()
         val ess2 = EntitySetSelection(Optional.empty(), Optional.of(ids1 + ids2))
         Assert.assertEquals(
                 4,
-                dataApi.loadSelectedEntitySetData(es.id, ess2, FileType.json).map { it.keySet() }.flatten().toSet().size
+                dataApi.loadSelectedEntitySetData(es.id, ess2, FileType.json).map { it.keys }.flatten().toSet().size
         )
 
         (et.properties + pt2.id).forEach {
@@ -168,7 +168,7 @@ class EdmTest : MultipleAuthenticatedUsersBase() {
         }
         Assert.assertEquals(0, edmApi.getEntityType(et.id).properties.size)
         val esData = dataApi.loadSelectedEntitySetData(es.id, ess2, FileType.json)
-        Assert.assertEquals(1, esData.first().size())
+        Assert.assertEquals(1, esData.first().size.toLong())
 
         assertException(
                 { edmApi.deleteEntityType(et.id) },
