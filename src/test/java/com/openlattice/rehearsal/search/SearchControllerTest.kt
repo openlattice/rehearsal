@@ -463,7 +463,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         Assert.assertEquals(numberOfEntities, searchedEntities.hits.size)
         Assert.assertEquals(numberOfEntities, searchedEntities.numHits.toInt())
 
-        val searchFrom2Max5 = SearchTerm("*", 2, 5)
+        val searchFrom2Max5 = SearchTerm("*", 6, 5)
         searchedEntities = searchApi.executeEntitySetDataQuery(es.id, searchFrom2Max5)
 
         // should yield 4 hits and 10 totalHits
@@ -496,7 +496,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         // Delete multiple entities
         val deletedIds = (0 until 50).map {
             idsList[Random.nextInt(numberOfEntities)]
-        }
+        }.toSet()
 
         // make both soft and hard deletes
         val (softDeleteIds, hardDeleteIds) = deletedIds.chunked(25).map { it.toSet() }
