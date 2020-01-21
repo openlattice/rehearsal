@@ -298,7 +298,13 @@ public class MultipleAuthenticatedUsersBase extends SetupEnvironment {
     }
 
     public static EntitySet createEntitySet( EntityType entityType, boolean linking, Set<UUID> linkedEntitySetIds ) {
-        return createEntitySet( UUID.randomUUID(), entityType, IdConstants.GLOBAL_ORGANIZATION_ID.getId(), linking, linkedEntitySetIds );
+        return createEntitySet(
+                UUID.randomUUID(),
+                entityType,
+                IdConstants.GLOBAL_ORGANIZATION_ID.getId(),
+                linking,
+                linkedEntitySetIds
+        );
     }
 
     public static EntitySet createEntitySet(
