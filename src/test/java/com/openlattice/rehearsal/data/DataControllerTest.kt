@@ -1388,7 +1388,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
                         Optional.of(setOf(esDst1.id)),
                         Optional.empty()),
                 DeleteType.Hard)
-        Assert.assertEquals(30L, deleteCount1)
+        Assert.assertEquals(40L, deleteCount1)
 
         // test if there is really no data
         val ess1 = EntitySetSelection(Optional.of(et1.properties))
@@ -1468,7 +1468,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
                         Optional.empty(),
                         Optional.empty()),
                 DeleteType.Hard)
-        Assert.assertEquals(20L, deleteCount2)
+        Assert.assertEquals(30L, deleteCount2)
 
         // test if there is really no data, what is deleted and data which is not
         val ess2 = EntitySetSelection(Optional.of(et2.properties))
