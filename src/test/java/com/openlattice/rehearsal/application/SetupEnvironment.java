@@ -51,7 +51,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class SetupEnvironment {
     protected static final AuthenticationTestRequestOptions authOptions = new AuthenticationTestRequestOptions()
-            .setUsernameOrEmail( "tests1@openlattice.com" )
+            .setUsernameOrEmail( "tests@openlattice.com" )
             .setPassword( "openlattice" );
     private static final AuthenticationTestRequestOptions authOptions1 = new AuthenticationTestRequestOptions()
             .setUsernameOrEmail( "tests1@openlattice.com" )
@@ -76,6 +76,10 @@ public class SetupEnvironment {
     protected static OkHttpClient httpClient;
     protected static OkHttpClient httpClient1;
     protected static OkHttpClient httpClient2;
+    protected static String tokenAdmin;
+    protected static String tokenUser1;
+    protected static String tokenUser2;
+    protected static String tokenUser3;
 
     protected static final Logger logger = LoggerFactory.getLogger( SetupEnvironment.class );
 
@@ -90,16 +94,16 @@ public class SetupEnvironment {
         RateLimiter limiter = RateLimiter.create( .5 );
 
         limiter.acquire();
-        Authentication jwtAdmin = AuthenticationTest.authenticate();
+        Authentication jwtAdmin = AuthenticationTest.getAuthentication( authOptions );
         Authentication jwtUser1 = AuthenticationTest.getAuthentication( authOptions1 );
         limiter.acquire();
         Authentication jwtUser2 = AuthenticationTest.getAuthentication( authOptions2 );
         Authentication jwtUser3 = AuthenticationTest.getAuthentication( authOptions3 );
 
-        String tokenAdmin = ( String ) jwtAdmin.getCredentials();
-        String tokenUser1 = ( String ) jwtUser1.getCredentials();
-        String tokenUser2 = ( String ) jwtUser2.getCredentials();
-        String tokenUser3 = ( String ) jwtUser3.getCredentials();
+        tokenAdmin = ( String ) jwtAdmin.getCredentials();
+        tokenUser1 = ( String ) jwtUser1.getCredentials();
+        tokenUser2 = ( String ) jwtUser2.getCredentials();
+        tokenUser3 = ( String ) jwtUser3.getCredentials();
 
         RetrofitFactory.configureObjectMapper( FullQualifiedNameJacksonSerializer::registerWithMapper );
 

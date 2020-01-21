@@ -52,9 +52,6 @@ open class SetupTestData : MultipleAuthenticatedUsersBase() {
          * @param
          */
         fun importDataSet(flightFileName: String, dataFileName: String) {
-            loginAs("admin")
-            val tokenAdmin = AuthenticationTest.getAuthentication(authOptions).credentials
-
             val flightFile = File(Thread.currentThread().contextClassLoader.getResource(FLIGHT_FOLDER).file,
                     flightFileName).absolutePath
             val dataFile = File(Thread.currentThread().contextClassLoader.getResource(DATA_FOLDER).file, dataFileName)
