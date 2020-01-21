@@ -48,6 +48,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         searchApi.triggerOrganizationIndex(id)
         searchApi.triggerAllOrganizationsIndex()
 
+        // TODO revisit why DB cannot be deleted and sessions still using it
         organizationsApi.destroyOrganization(id)
         val search3 = searchApi.executeOrganizationSearch(
                 SearchTerm(organization.title, 0, 10, Optional.empty<Boolean>()))
@@ -306,6 +307,8 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         // should be indexed automatically
         val idsList = entities.keys.toList()
         val searchAll = SearchTerm("*", 0, 10)
+
+        Thread.sleep(1000)
         var searchedEntities = searchApi.executeEntitySetDataQuery(es.id, searchAll)
 
         Assert.assertEquals(6, searchedEntities.numHits)
@@ -318,6 +321,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         /* Hard delete */
         // 1 entity
         dataApi.deleteEntity(es.id, idsList[0], DeleteType.Hard)
+        Thread.sleep(1000)
 
         // should be deleted automatically
         searchedEntities = searchApi.executeEntitySetDataQuery(es.id, searchAll)
@@ -330,6 +334,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
 
         // multiple entities
         dataApi.deleteEntities(es.id, setOf(idsList[1], idsList[2]), DeleteType.Hard)
+        Thread.sleep(1000)
 
         // should be deleted automatically
         searchedEntities = searchApi.executeEntitySetDataQuery(es.id, searchAll)
@@ -345,6 +350,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         /* Soft delete */
         // 1 entity
         dataApi.deleteEntity(es.id, idsList[3], DeleteType.Soft)
+        Thread.sleep(1000)
 
         // should be deleted automatically
         searchedEntities = searchApi.executeEntitySetDataQuery(es.id, searchAll)
@@ -356,6 +362,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
 
         // multiple entities
         dataApi.deleteEntities(es.id, setOf(idsList[4], idsList[5]), DeleteType.Soft)
+        Thread.sleep(1000)
 
         // should be deleted automatically
         searchedEntities = searchApi.executeEntitySetDataQuery(es.id, searchAll)
@@ -373,6 +380,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         val testData = TestDataFactory.randomStringEntityData(2, et.properties).values.toList()
         val id1 = dataApi.createEntities(es1.id, testData).first()
         val id2 = dataApi.createEntities(es2.id, testData).first()
+        Thread.sleep(1000)
 
         // should be indexed automatically
         val searchAll = SearchTerm("*", 0, 10)
@@ -392,6 +400,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
 
         /* Hard delete */
         dataApi.deleteAllEntitiesFromEntitySet(es1.id, DeleteType.Hard)
+        Thread.sleep(1000)
 
         // should be deleted automatically
         searchedEntities1 = searchApi.executeEntitySetDataQuery(es1.id, searchAll)
@@ -406,6 +415,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
 
         /* Soft delete */
         dataApi.deleteAllEntitiesFromEntitySet(es2.id, DeleteType.Soft)
+        Thread.sleep(1000)
 
         // should be deleted automatically
         searchedEntities1 = searchApi.executeEntitySetDataQuery(es1.id, searchAll)
