@@ -780,42 +780,52 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
 
         /*   HARD DELETE   */
-        val unauthorizedAclKeys: MutableSet<UUID> = mutableSetOf(es.id)
-        unauthorizedAclKeys.addAll(personEt.properties)
+        val ownerPermission = EnumSet.of(Permission.OWNER)
 
         loginAs("user1")
         assertException(
                 { dataApi.deleteEntities(es.id, newEntityIds.toSet(), DeleteType.Hard) },
                 listOf(
-                        "Unable to delete from entity sets ${es.id}: missing required permissions on associations for AclKeys",
-                        es.id.toString(),
-                        personEt.properties.random().toString()
+                        "Unable to delete from entity sets [${es.id}]: missing required permissions " +
+                                "$ownerPermission for AclKeys",
+                        "[${es.id}]", // no owner permission on es entity set
+                        personEt.properties.random().toString() // no owner permission on any property type
                 )
         )
         loginAs("admin")
 
         // add user1 as owner of entityset
-        val ownerPermissions = EnumSet.of(Permission.OWNER)
-        val esOwnerAcl = Acl(AclKey(es.id), setOf(Ace(user1, ownerPermissions, OffsetDateTime.MAX)))
+
+        val esOwnerAcl = Acl(AclKey(es.id), setOf(Ace(user1, ownerPermission, OffsetDateTime.MAX)))
         permissionsApi.updateAcl(AclData(esOwnerAcl, Action.ADD))
 
         loginAs("user1")
+        // should not contain es acl key ("[es.id]") anymore, only properties
         assertException(
                 { dataApi.deleteEntities(es.id, newEntityIds.toSet(), DeleteType.Hard) },
-                "You must have OWNER permission of all required entity set ${es.id} properties to delete entities from it."
+                listOf(
+                        "Unable to delete from entity sets [${es.id}]: missing required permissions " +
+                                "$ownerPermission for AclKeys",
+                        personEt.properties.random().toString() // no owner permission on any property type
+                )
         )
         loginAs("admin")
 
         // add user1 as owner for all property types in entityset
         personEt.properties.forEach {
-            val acl = Acl(AclKey(es.id, it), setOf(Ace(user1, ownerPermissions, OffsetDateTime.MAX)))
+            val acl = Acl(AclKey(es.id, it), setOf(Ace(user1, ownerPermission, OffsetDateTime.MAX)))
             permissionsApi.updateAcl(AclData(acl, Action.ADD))
         }
 
         loginAs("user1")
         assertException(
                 { dataApi.deleteEntities(es.id, newEntityIds.toSet(), DeleteType.Hard) },
-                "Object [${esEdge.id}] is not accessible."
+                listOf(
+                        "Unable to delete from entity set ${es.id}: missing required permissions $ownerPermission " +
+                                "on associations for AclKeys",
+                        "[${esEdge.id}]", // no owner permission on esEdge entity set
+                        edge.properties.random().toString() // no owner permission on any property type
+                )
         )
         loginAs("admin")
 
@@ -833,89 +843,175 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
                             DeleteType.Hard
                     )
                 },
-                "Object [${esEdge.id}] is not accessible."
+                listOf(
+                        "Unable to delete from entity set ${es.id}: missing required permissions $ownerPermission " +
+                                "on associations for AclKeys",
+                        "[${esEdge.id}]", // no owner permission on esEdge entity set
+                        edge.properties.random().toString() // no owner permission on any property type
+                )
         )
         loginAs("admin")
 
         // add user1 as owner of edge entity set
-        val dstOwnerAcl = Acl(AclKey(esEdge.id), setOf(Ace(user1, ownerPermissions, OffsetDateTime.MAX)))
+        val edgeOwnerAcl = Acl(AclKey(esEdge.id), setOf(Ace(user1, ownerPermission, OffsetDateTime.MAX)))
+        permissionsApi.updateAcl(AclData(edgeOwnerAcl, Action.ADD))
+
+        loginAs("user1")
+        assertException(
+                {
+                    dataApi.deleteEntitiesAndNeighbors(
+                            EntityNeighborsFilter(
+                                    mapOf(es.id to newEntityIds.toSet()),
+                                    Optional.empty(),
+                                    Optional.of(setOf(esDst.id)),
+                                    Optional.of(setOf(esEdge.id))
+                            ),
+                            DeleteType.Hard
+                    )
+                },
+                listOf(
+                        "Unable to delete from entity set ${es.id}: missing required permissions $ownerPermission " +
+                                "on associations for AclKeys",
+                        edge.properties.random().toString() // no owner permission on any property type
+                )
+        )
+        loginAs("admin")
+
+        // add owner to user1 for all property types in edge entityset
+        edge.properties.forEach {
+            val acl = Acl(AclKey(esEdge.id, it), setOf(Ace(user1, ownerPermission, OffsetDateTime.MAX)))
+            permissionsApi.updateAcl(AclData(acl, Action.ADD))
+        }
+
+        loginAs("user1")
+        assertException(
+                {
+                    dataApi.deleteEntitiesAndNeighbors(
+                            EntityNeighborsFilter(
+                                    mapOf(es.id to newEntityIds.toSet()),
+                                    Optional.empty(),
+                                    Optional.of(setOf(esDst.id)),
+                                    Optional.empty()
+                            ),
+                            DeleteType.Hard
+                    )
+                },
+                listOf(
+                        "Unable to delete from entity sets [${esDst.id}]: missing required permissions " +
+                                "$ownerPermission for AclKeys",
+                        "[${esDst.id}]", // no read permission on es entity set
+                        dst.properties.random().toString() // no read permission on any property type
+                )
+        )
+        loginAs("admin")
+
+
+        // add owner to user1 for dst entity set
+        val dstOwnerAcl = Acl(AclKey(esDst.id), setOf(Ace(user1, ownerPermission, OffsetDateTime.MAX)))
         permissionsApi.updateAcl(AclData(dstOwnerAcl, Action.ADD))
 
         loginAs("user1")
-        assertException({
-            dataApi.deleteEntitiesAndNeighbors(
-                    EntityNeighborsFilter(
-                            mapOf(es.id to newEntityIds.toSet()),
-                            Optional.empty(),
-                            Optional.of(setOf(esDst.id)),
-                            Optional.of(setOf(esEdge.id))
-                    ),
-                    DeleteType.Hard
-            )
-        }, "You must have OWNER permission of all required entity set ${esEdge.id} properties to delete entities from it.")
+        assertException(
+                {
+                    dataApi.deleteEntitiesAndNeighbors(
+                            EntityNeighborsFilter(
+                                    mapOf(es.id to newEntityIds.toSet()),
+                                    Optional.empty(),
+                                    Optional.of(setOf(esDst.id)),
+                                    Optional.empty()
+                            ),
+                            DeleteType.Hard
+                    )
+                },
+                listOf(
+                        "Unable to delete from entity sets [${esDst.id}]: missing required permissions " +
+                                "$ownerPermission for AclKeys",
+                        dst.properties.random().toString() // no read permission on any property type
+                )
+        )
         loginAs("admin")
 
 
         /*   SOFT DELETE   */
+        val writePermission = EnumSet.of(Permission.WRITE)
 
         loginAs("user1")
         assertException(
                 { dataApi.deleteEntities(es.id, newEntityIds.toSet(), DeleteType.Soft) },
-                "Object [${es.id}] is not accessible."
+                listOf(
+                        "Unable to delete from entity sets [${es.id}]: missing required permissions $writePermission " +
+                                "for AclKeys",
+                        "[${es.id}]", // no read permission on es entity set
+                        personEt.properties.random().toString() // no read permission on any property type
+                )
         )
         loginAs("admin")
 
-        // add read to user1 for entityset
-        val readPermissions = EnumSet.of(Permission.READ)
-        val esAcl = Acl(AclKey(es.id), setOf(Ace(user1, readPermissions, OffsetDateTime.MAX)))
+        // add write to user1 for entityset
+        val esAcl = Acl(AclKey(es.id), setOf(Ace(user1, writePermission, OffsetDateTime.MAX)))
         permissionsApi.updateAcl(AclData(esAcl, Action.ADD))
 
         loginAs("user1")
         assertException(
                 { dataApi.deleteEntities(es.id, newEntityIds.toSet(), DeleteType.Soft) },
-                "You must have WRITE permission of all required entity set ${es.id} properties to delete entities from it."
+                listOf(
+                        "Unable to delete from entity sets [${es.id}]: missing required permissions $writePermission " +
+                                "for AclKeys",
+                        personEt.properties.random().toString() // no read permission on any property type
+                )
         )
         loginAs("admin")
 
 
         // add write to user1 for all property types in entityset
-        val writePermissions = EnumSet.of(Permission.WRITE)
         personEt.properties.forEach {
-            val acl = Acl(AclKey(es.id, it), setOf(Ace(user1, writePermissions, OffsetDateTime.MAX)))
+            val acl = Acl(AclKey(es.id, it), setOf(Ace(user1, writePermission, OffsetDateTime.MAX)))
             permissionsApi.updateAcl(AclData(acl, Action.ADD))
         }
 
         loginAs("user1")
         assertException(
                 { dataApi.deleteEntities(es.id, newEntityIds.toSet(), DeleteType.Soft) },
-                "Object [${esEdge.id}] is not accessible."
+                listOf(
+                        "Unable to delete from entity set ${es.id}: missing required permissions $writePermission " +
+                                "on associations for AclKeys",
+                        "[${esEdge.id}]", // no read permission on esEdge entity set
+                        edge.properties.random().toString() // no read permission on any property type
+                )
         )
         loginAs("admin")
 
 
         // try to delete also neighbors
-        // add read to user1 for edge entity set
-        val edgeAcl = Acl(AclKey(esEdge.id), setOf(Ace(user1, readPermissions, OffsetDateTime.MAX)))
-        permissionsApi.updateAcl(AclData(edgeAcl, Action.ADD))
+        // add write to user1 for edge entity set
+        val edgeWriteAcl = Acl(AclKey(esEdge.id), setOf(Ace(user1, writePermission, OffsetDateTime.MAX)))
+        permissionsApi.updateAcl(AclData(edgeWriteAcl, Action.ADD))
 
         loginAs("user1")
-        assertException({
-            dataApi.deleteEntitiesAndNeighbors(
-                    EntityNeighborsFilter(
-                            mapOf(es.id to newEntityIds.toSet()),
-                            Optional.empty(),
-                            Optional.of(setOf(esDst.id)),
-                            Optional.empty()
-                    ),
-                    DeleteType.Soft
-            )
-        }, "You must have WRITE permission of all required entity set ${esEdge.id} properties to delete entities from it.")
+        assertException(
+                {
+                    dataApi.deleteEntitiesAndNeighbors(
+                            EntityNeighborsFilter(
+                                    mapOf(es.id to newEntityIds.toSet()),
+                                    Optional.empty(),
+                                    Optional.of(setOf(esDst.id)),
+                                    Optional.empty()
+                            ),
+                            DeleteType.Soft
+                    )
+                },
+                listOf(
+                        "Unable to delete from entity set ${es.id}: missing required permissions $writePermission " +
+                                "on associations for AclKeys",
+                        edge.properties.random().toString() // no read permission on any property type
+                )
+        )
         loginAs("admin")
 
 
         // add write to user1 for all property types in edge entityset
         edge.properties.forEach {
-            val acl = Acl(AclKey(esEdge.id, it), setOf(Ace(user1, writePermissions, OffsetDateTime.MAX)))
+            val acl = Acl(AclKey(esEdge.id, it), setOf(Ace(user1, writePermission, OffsetDateTime.MAX)))
             permissionsApi.updateAcl(AclData(acl, Action.ADD))
         }
 
@@ -931,26 +1027,40 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
                             ),
                             DeleteType.Soft
                     )
-                }, "Object [${esDst.id}] is not accessible.")
+                },
+                listOf(
+                        "Unable to delete from entity sets [${esDst.id}]: missing required permissions " +
+                                "$writePermission for AclKeys",
+                        "[${esDst.id}]", // no read permission on es entity set
+                        dst.properties.random().toString() // no read permission on any property type
+                )
+        )
         loginAs("admin")
 
 
-        // add read to user1 for dst entity set
-        val dstAcl = Acl(AclKey(esDst.id), setOf(Ace(user1, readPermissions, OffsetDateTime.MAX)))
-        permissionsApi.updateAcl(AclData(dstAcl, Action.ADD))
+        // add write to user1 for dst entity set
+        val dstWriteAcl = Acl(AclKey(esDst.id), setOf(Ace(user1, writePermission, OffsetDateTime.MAX)))
+        permissionsApi.updateAcl(AclData(dstWriteAcl, Action.ADD))
 
         loginAs("user1")
-        assertException({
-            dataApi.deleteEntitiesAndNeighbors(
-                    EntityNeighborsFilter(
-                            mapOf(es.id to newEntityIds.toSet()),
-                            Optional.empty(),
-                            Optional.of(setOf(esDst.id)),
-                            Optional.empty()
-                    ),
-                    DeleteType.Soft
-            )
-        }, "You must have WRITE permission of all required entity set ${esDst.id} properties to delete entities from it.")
+        assertException(
+                {
+                    dataApi.deleteEntitiesAndNeighbors(
+                            EntityNeighborsFilter(
+                                    mapOf(es.id to newEntityIds.toSet()),
+                                    Optional.empty(),
+                                    Optional.of(setOf(esDst.id)),
+                                    Optional.empty()
+                            ),
+                            DeleteType.Soft
+                    )
+                },
+                listOf(
+                        "Unable to delete from entity sets [${esDst.id}]: missing required permissions " +
+                                "$writePermission for AclKeys",
+                        dst.properties.random().toString() // no read permission on any property type
+                )
+        )
         loginAs("admin")
     }
 
