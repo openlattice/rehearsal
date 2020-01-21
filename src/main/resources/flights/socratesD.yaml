@@ -26,4 +26,5 @@ entityDefinitions:
         type: "nc.PersonEthnicity"
         column: "ethnicity"
 associationDefinitions: {}
+organizationId: "00000000-0000-0001-0000-000000000000"
 name: "Socrates"
