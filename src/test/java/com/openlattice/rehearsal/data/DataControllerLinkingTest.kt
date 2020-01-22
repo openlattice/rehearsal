@@ -59,6 +59,7 @@ class DataControllerLinkingTest : SetupTestData() {
         @JvmStatic
         @BeforeClass
         fun init() {
+            loginAs("admin")
             importedEntitySets.forEach {
                 importDataSet(it.value.first, it.value.second)
             }
@@ -68,7 +69,6 @@ class DataControllerLinkingTest : SetupTestData() {
                 Thread.sleep(5000L)
             }
 
-            loginAs("admin")
             personEt = EdmTestConstants.personEt
         }
 
