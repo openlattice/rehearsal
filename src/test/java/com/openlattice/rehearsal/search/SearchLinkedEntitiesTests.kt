@@ -34,6 +34,7 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         @JvmStatic
         @BeforeClass
         fun init() {
+            loginAs("admin")
             importedEntitySets.forEach {
                 importDataSet(it.value.first, it.value.second)
             }

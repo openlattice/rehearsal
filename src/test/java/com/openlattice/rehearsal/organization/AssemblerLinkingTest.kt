@@ -69,6 +69,7 @@ class AssemblerLinkingTest : AssemblerTestBase() {
         @JvmStatic
         @BeforeClass
         fun init() {
+            loginAs("admin")
             importedEntitySets.forEach {
                 importDataSet(it.value.first, it.value.second)
             }
@@ -76,8 +77,7 @@ class AssemblerLinkingTest : AssemblerTestBase() {
             while (!checkLinkingFinished(importedEntitySets.keys)) {
                 Thread.sleep(5000L)
             }
-
-            loginAs("admin")
+            
             personEt = EdmTestConstants.personEt
 
             organization = createOrganization()

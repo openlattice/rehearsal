@@ -63,11 +63,11 @@ class LinkingFeedbackTest : SetupTestData() {
         @JvmStatic
         @BeforeClass
         fun init() {
+            loginAs("admin")
             importedEntitySets.forEach {
                 importDataSet(it.value.first, it.value.second)
             }
 
-            loginAs("admin")
             personEt = EdmTestConstants.personEt
 
             val importedEntitySetKeysIterator = importedEntitySets.keys.iterator()
