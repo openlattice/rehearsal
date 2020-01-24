@@ -1,4 +1,4 @@
-firstname,lastname,ssn,sex,dob,race,ethnicity
-Asd,Qwe,,,1900-01-01,,
-Beverly,Amelung,,,1964-08-01,,
-Beverly,Amelun,,,1964-08-02,,
+trainingid,firstname,lastname,ssn,sex,dob,race,ethnicity
+cdc93e40-8ad9-11e8-a1c7-0242ac110003,Asd,Qwe,,,1900-01-01,,
+cf151c88-8ad9-11e8-a1c7-0242ac110003,Beverly,Amelung,,,1964-08-01,,
+cdbfbd16-8ad9-11e8-a1c7-0242ac110003,Beverly,Amelun,,,1964-08-02,,
