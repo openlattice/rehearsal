@@ -382,8 +382,8 @@ class DataControllerLinkingTest : SetupTestData() {
 
         assertException(
                 { dataApi.getEntityPropertyValues(esLinking.id, id, EdmTestConstants.personGivenNameId) },
-                "Not authorized to read property type ${EdmTestConstants.personGivenNameId} in " +
-                        "one or more normal entity sets of linking entity set ${esLinking.id}"
+                "Not authorized to read property type ${EdmTestConstants.personGivenNameId} in entity set " +
+                        "${esLinking.id}."
         )
         loginAs("admin")
 
@@ -434,6 +434,57 @@ class DataControllerLinkingTest : SetupTestData() {
         Assert.assertEquals(1, dataAll2.size)
 
         loginAs("admin")
+    }
+
+    @Test
+    fun testLinkedEntitySetBreakDown() {
+        val esId1 = entitySetsApi.getEntitySetId(importedEntitySets.keys.first())
+        val esId2 = entitySetsApi.getEntitySetId(importedEntitySets.keys.last())
+
+        dataApi.deleteAllEntitiesFromEntitySet(esId1, DeleteType.Soft)
+        dataApi.deleteAllEntitiesFromEntitySet(esId2, DeleteType.Hard)
+
+        val esLinking = createEntitySet(personEt, true, setOf(esId1, esId2))
+
+        val personGivenNamePropertyId = EdmTestConstants.personGivenNameId
+        val personSurNamePropertyId = EdmTestConstants.personSurnameId
+        val names = (1..numberOfEntries).map {
+            mapOf(
+                    personGivenNamePropertyId to setOf(RandomStringUtils.randomAscii(5)),
+                    personSurNamePropertyId to setOf(RandomStringUtils.randomAscii(5))
+            )
+        }
+
+        dataApi.createEntities(esId1, names)
+        dataApi.createEntities(esId2, names)
+
+        // wait while linking finishes
+        Thread.sleep(5000)
+        while (!checkLinkingFinished(setOf(importedEntitySets.keys.first(), importedEntitySets.keys.last()))) {
+            Thread.sleep(3000)
+        }
+
+        val essAll = EntitySetSelection(Optional.of(personEt.properties), Optional.empty())
+        val data = index(dataApi.loadSelectedEntitySetData(esLinking.id, essAll, FileType.json).toList())
+        val linkingIds = data.keys.toSet()
+        val linkingId1 = linkingIds.random()
+
+        val breakDownAll = dataApi.loadLinkedEntitySetBreakdown(esLinking.id, essAll)
+        Assert.assertEquals(linkingIds, breakDownAll.keys)
+        breakDownAll.forEach { (linkingId, valuesByEntitySet) ->
+            valuesByEntitySet.values.forEach { valuesByOrigin ->
+                valuesByOrigin.values.forEach { valuesByFqn ->
+                    valuesByFqn.forEach { (fqn, values) ->
+                        Assert.assertTrue(data.getValue(linkingId).getValue(fqn).containsAll(values))
+                    }
+                }
+            }
+        }
+
+        val ess1 = EntitySetSelection(Optional.of(personEt.properties), Optional.of(setOf(linkingId1)))
+        val breakDown1 = dataApi.loadLinkedEntitySetBreakdown(esLinking.id, ess1)
+        Assert.assertEquals(1, breakDown1.keys.size)
+        Assert.assertEquals(linkingId1, breakDown1.keys.first())
     }
 
     private fun index(
