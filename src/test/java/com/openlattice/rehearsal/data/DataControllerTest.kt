@@ -83,7 +83,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val es = createEntitySet(et)
 
         val testData = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties).values.toList()
-        val entities = dataApi.createEntities(es.id, testData).toSet().zip(testData).toMap()
+        val entities = dataApi.createEntities(mapOf(es.id to testData)).getValue(es.id).toSet().zip(testData).toMap()
         val ess = EntitySetSelection(Optional.of(et.properties))
         val results1 = dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json).toSet()
 
@@ -109,7 +109,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val es = createEntitySet(et)
 
         val testData = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties).values.toList()
-        dataApi.createEntities(es.id, testData)
+        dataApi.createEntities(mapOf(es.id to testData))
         val ess = EntitySetSelection(Optional.empty(), Optional.empty())
         val results = dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json).toSet()
 
@@ -125,7 +125,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         val testData = TestDataFactory.randomBinaryData(numberOfEntries, et.key.iterator().next(), pt.id).values.toList()
 
-        dataApi.createEntities(es.id, testData)
+        dataApi.createEntities(mapOf(es.id to testData))
 
         val ess = EntitySetSelection(Optional.of(et.properties))
         val results = dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json).toSet()
@@ -141,7 +141,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testData = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties)
 
         val entries = testData.values.toList()
-        val ids = dataApi.createEntities(es.id, entries)
+        val ids = dataApi.createEntities(mapOf(es.id to entries)).getValue(es.id)
 
         val indexExpected = entries.mapIndexed { index, data -> ids[index] to keyByFqn(data) }.toMap()
 
@@ -207,13 +207,16 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edge.properties)
 
         val entriesSrc = testDataSrc.values.toList()
-        val idsSrc = dataApi.createEntities(esSrc.id, entriesSrc)
-
         val entriesDst = testDataDst.values.toList()
-        val idsDst = dataApi.createEntities(esDst.id, entriesDst)
-
         val entriesEdge = testDataEdge.values.toList()
-        val idsEdge = dataApi.createEntities(esEdge.id, entriesEdge)
+
+        val ids = dataApi.createEntities(
+                mapOf(esSrc.id to entriesSrc, esDst.id to entriesDst, esEdge.id to entriesEdge)
+        )
+
+        val idsSrc = ids.getValue(esSrc.id)
+        val idsDst = ids.getValue(esDst.id)
+        val idsEdge = ids.getValue(esEdge.id)
 
         val edges = idsSrc.mapIndexed { index, _ ->
             DataEdgeKey(
@@ -266,10 +269,12 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties)
 
         val entriesSrc = testDataSrc.values.toList()
-        val idsSrc = dataApi.createEntities(esSrc.id, entriesSrc)
-
         val entriesDst = testDataDst.values.toList()
-        val idsDst = dataApi.createEntities(esDst.id, entriesDst)
+
+        val ids = dataApi.createEntities(mapOf(esSrc.id to entriesSrc, esDst.id to entriesDst))
+
+        val idsSrc = ids.getValue(esSrc.id)
+        val idsDst = ids.getValue(esDst.id)
 
         val edgeData = createDataEdges(es.id, et.properties, esSrc.id, idsSrc, esDst.id, idsDst)
 
@@ -313,10 +318,11 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties)
 
         val entriesSrc = testDataSrc.values.toList()
-        val idsSrc = dataApi.createEntities(esSrc.id, entriesSrc)
-
         val entriesDst = testDataDst.values.toList()
-        val idsDst = dataApi.createEntities(esDst.id, entriesDst)
+
+        val ids = dataApi.createEntities(mapOf(esSrc.id to entriesSrc, esDst.id to entriesDst))
+        val idsSrc = ids.getValue(esSrc.id)
+        val idsDst = ids.getValue(esDst.id)
 
         val edgeData = createDataEdges(esEdge1.id, edge1.properties, esSrc.id, idsSrc, esDst.id, idsDst)
         val edgesToBeCreated = mapOf(edgeData)
@@ -341,7 +347,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edge2.properties)
         val entriesEdge = testDataEdge.values.toList()
-        val idsEdge = dataApi.createEntities(esEdge2.id, entriesEdge)
+        val idsEdge = dataApi.createEntities(mapOf(esEdge2.id to entriesEdge)).getValue(esEdge2.id)
 
         val edges = idsSrc.mapIndexed { index, _ ->
             DataEdgeKey(
@@ -381,13 +387,16 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edge.properties)
 
         val entriesSrc = testDataSrc.values.toList()
-        val idsSrc = dataApi.createEntities(esSrc.id, entriesSrc)
-
         val entriesDst = testDataDst.values.toList()
-        val idsDst = dataApi.createEntities(esDst.id, entriesDst)
-
         val entriesEdge = testDataEdge.values.toList()
-        val idsEdge = dataApi.createEntities(esEdge.id, entriesEdge)
+
+        val ids = dataApi.createEntities(
+                mapOf(esSrc.id to entriesSrc, esDst.id to entriesDst, esEdge.id to entriesEdge)
+        )
+
+        val idsSrc = ids.getValue(esSrc.id)
+        val idsDst = ids.getValue(esDst.id)
+        val idsEdge = ids.getValue(esEdge.id)
 
         val edgeData1 = createDataEdges(esEdge.id, edge.properties, esSrc.id, idsSrc, esDst.id, idsDst)
         val edgesToBeCreated1 = mapOf(edgeData1)
@@ -497,7 +506,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         )
 
         //added transformValues()
-        dataApi.createEntities(es.id, testData)
+        dataApi.createEntities(mapOf(es.id to testData))
         val ess = EntitySetSelection(Optional.of(et.properties))
         val results = dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json).toSet()
 
@@ -520,7 +529,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         //added transformValues()
         val entities = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties).values.toList()
-        dataApi.createEntities(es.id, entities)
+        dataApi.createEntities(mapOf(es.id to entities))
 
         // load selected data
         val selectedProperties = et.properties.filter { random.nextBoolean() }.toSet()
@@ -566,7 +575,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         // add test data
         val testData = TestDataFactory.randomStringEntityData(1, et.properties).values.toList()
 
-        dataApi.createEntities(es.id, testData)
+        dataApi.createEntities(mapOf(es.id to testData))
 
         val oldNameSpace = pt.type.namespace
         val newNameSpace = oldNameSpace + "extrachars"
@@ -605,7 +614,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testData = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties)
 
         val entries = testData.values.toList()
-        val ids = dataApi.createEntities(es.id, entries)
+        val ids = dataApi.createEntities(mapOf(es.id to entries)).getValue(es.id)
 
         val indexExpected = entries.mapIndexed { index, data -> ids[index] to keyByFqn(data) }.toMap()
         val ess = EntitySetSelection(Optional.of(et.properties), Optional.of(HashSet(ids)))
@@ -673,7 +682,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testData2 = TestDataFactory.randomStringEntityData(1, et2.properties)
 
         val entries2 = testData2.values.toList()
-        val id = dataApi.createEntities(es2.id, entries2)[0]
+        val id = dataApi.createEntities(mapOf(es2.id to entries2)).getValue(es2.id)[0]
         val property = et2.properties.first()
 
         // try to read data with no permissions on it
@@ -746,10 +755,6 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
     fun testNotAuthorizedDelete() {
         val es = createEntitySet(personEt)
 
-        val entries = (1..numberOfEntries)
-                .map { mapOf(EdmTestConstants.personGivenNameId to setOf(RandomStringUtils.randomAscii(5))) }
-        val newEntityIds = dataApi.createEntities(es.id, entries)
-
         // create edges with original entityset as source
         val dst = createEntityType()
         val edge = createEdgeEntityType()
@@ -760,14 +765,15 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         // create association type with defining src and dst entity types
         createAssociationType(edge, setOf(personEt), setOf(dst))
 
-        val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties)
-        val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edge.properties)
+        val entries = (1..numberOfEntries)
+                .map { mapOf(EdmTestConstants.personGivenNameId to setOf(RandomStringUtils.randomAscii(5))) }
+        val entriesDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties).values.toList()
+        val entriesEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edge.properties).values.toList()
 
-        val entriesDst = testDataDst.values.toList()
-        val idsDst = dataApi.createEntities(esDst.id, entriesDst)
-
-        val entriesEdge = testDataEdge.values.toList()
-        val idsEdge = dataApi.createEntities(esEdge.id, entriesEdge)
+        val ids = dataApi.createEntities(mapOf(es.id to entries, esDst.id to entriesDst, esEdge.id to entriesEdge))
+        val newEntityIds = ids.getValue(es.id)
+        val idsDst = ids.getValue(esDst.id)
+        val idsEdge = ids.getValue(esEdge.id)
 
         val edges = newEntityIds.mapIndexed { index, _ ->
             DataEdgeKey(
@@ -1071,7 +1077,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         val entries = (1..numberOfEntries)
                 .map { mapOf(EdmTestConstants.personGivenNameId to setOf(RandomStringUtils.randomAscii(5))) }
-        val newEntityIds = dataApi.createEntities(es.id, entries)
+        val newEntityIds = dataApi.createEntities(mapOf(es.id to entries)).getValue(es.id)
 
         val ess = EntitySetSelection(Optional.of(personEt.properties))
         Assert.assertEquals(numberOfEntries, dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json).toList().size)
@@ -1101,10 +1107,11 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties)
 
         val entriesSrc = testDataSrc.values.toList()
-        val idsSrc = dataApi.createEntities(esSrc.id, entriesSrc)
-
         val entriesDst = testDataDst.values.toList()
-        val idsDst = dataApi.createEntities(esDst.id, entriesDst)
+
+        val ids = dataApi.createEntities(mapOf(esSrc.id to entriesSrc, esDst.id to entriesDst))
+        val idsSrc = ids.getValue(esSrc.id)
+        val idsDst = ids.getValue(esDst.id)
 
         val edgeData = createDataEdges(aes.id, et.properties, esSrc.id, idsSrc, esDst.id, idsDst)
         val edgesToBeCreated = mapOf(edgeData)
@@ -1126,10 +1133,6 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
     fun testDeleteEntitiesWithAssociations() {
         val es = createEntitySet(personEt)
 
-        val entries = (1..numberOfEntries)
-                .map { mapOf(EdmTestConstants.personGivenNameId to setOf(RandomStringUtils.randomAscii(5))) }
-        val newEntityIds = dataApi.createEntities(es.id, entries)
-
         // create edges with original entityset as source
         val dst = createEntityType()
         val edge = createEdgeEntityType()
@@ -1140,14 +1143,15 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         // create association type with defining src and dst entity types
         createAssociationType(edge, setOf(personEt), setOf(dst))
 
-        val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties)
-        val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edge.properties)
+        val entries = (1..numberOfEntries)
+                .map { mapOf(EdmTestConstants.personGivenNameId to setOf(RandomStringUtils.randomAscii(5))) }
+        val entriesDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties).values.toList()
+        val entriesEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edge.properties).values.toList()
 
-        val entriesDst = testDataDst.values.toList()
-        val idsDst = dataApi.createEntities(esDst.id, entriesDst)
-
-        val entriesEdge = testDataEdge.values.toList()
-        val idsEdge = dataApi.createEntities(esEdge.id, entriesEdge)
+        val ids = dataApi.createEntities(mapOf(es.id to entries, esDst.id to entriesDst, esEdge.id to entriesEdge))
+        val newEntityIds = ids.getValue(es.id)
+        val idsDst = ids.getValue(esDst.id)
+        val idsEdge = ids.getValue(esEdge.id)
 
         val edges = newEntityIds.mapIndexed { index, _ ->
             DataEdgeKey(
@@ -1215,10 +1219,6 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         // hard delete entityset data
         val es = createEntitySet(personEt)
 
-        val entries = (1..numberOfEntries)
-                .map { mapOf(EdmTestConstants.personGivenNameId to setOf(RandomStringUtils.randomAscii(5))) }
-        val newEntityIds = dataApi.createEntities(es.id, entries)
-
         // create edges with original entityset as source
         val dst = createEntityType()
         val edge = createEdgeEntityType()
@@ -1229,14 +1229,16 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         // create association type with defining src and dst entity types
         createAssociationType(edge, setOf(personEt), setOf(dst))
 
-        val testDataDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties)
-        val testDataEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edge.properties)
+        // add data
+        val entries = (1..numberOfEntries)
+                .map { mapOf(EdmTestConstants.personGivenNameId to setOf(RandomStringUtils.randomAscii(5))) }
+        val entriesDst = TestDataFactory.randomStringEntityData(numberOfEntries, dst.properties).values.toList()
+        val entriesEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edge.properties).values.toList()
 
-        val entriesDst = testDataDst.values.toList()
-        val idsDst = dataApi.createEntities(esDst.id, entriesDst)
-
-        val entriesEdge = testDataEdge.values.toList()
-        val idsEdge = dataApi.createEntities(esEdge.id, entriesEdge)
+        val ids = dataApi.createEntities(mapOf(es.id to entries, esDst.id to entriesDst, esEdge.id to entriesEdge))
+        val newEntityIds = ids.getValue(es.id)
+        val idsDst = ids.getValue(esDst.id)
+        val idsEdge = ids.getValue(esEdge.id)
 
         val edges = newEntityIds.mapIndexed { index, _ ->
             DataEdgeKey(
@@ -1270,9 +1272,10 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
 
         // soft delete entityset data
-        val newEntityIds2 = dataApi.createEntities(es.id, entries)
+        val ids2 = dataApi.createEntities(mapOf(es.id to entries, esEdge.id to entriesEdge))
+        val newEntityIds2 = ids2.getValue(es.id)
+        val idsEdge2 = ids2.getValue(esEdge.id)
 
-        val idsEdge2 = dataApi.createEntities(esEdge.id, entriesEdge)
         val edges2 = newEntityIds.mapIndexed { index, _ ->
             DataEdgeKey(
                     EntityDataKey(es.id, newEntityIds2[index]),
@@ -1316,7 +1319,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
                     )
                 }
 
-        val newEntityIds = dataApi.createEntities(es.id, people)
+        val newEntityIds = dataApi.createEntities(mapOf(es.id to people)).getValue(es.id)
 
         val ess = EntitySetSelection(Optional.of(personEt.properties))
         Assert.assertEquals(numberOfEntries, dataApi.loadSelectedEntitySetData(es.id, ess, FileType.json).toList().size)
@@ -1357,11 +1360,18 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataSrc1 = TestDataFactory.randomStringEntityData(numberOfEntries, src1.properties).values.toList()
         val testDataEdgeSrc1 = TestDataFactory.randomStringEntityData(numberOfEntries, edgeSrc1.properties).values.toList()
 
-        val ids1 = dataApi.createEntities(es1.id, testData1)
-        val idsDst1 = dataApi.createEntities(esDst1.id, testDataDst1)
-        val idsEdgeDst1 = dataApi.createEntities(esEdgeDst1.id, testDataEdgeDst1)
-        val idsSrc1 = dataApi.createEntities(esSrc1.id, testDataSrc1)
-        val idsEdgeSrc1 = dataApi.createEntities(esEdgeSrc1.id, testDataEdgeSrc1)
+        val allIds1 = dataApi.createEntities(mapOf(
+                es1.id to testData1,
+                esDst1.id to testDataDst1,
+                esEdgeDst1.id to testDataEdgeDst1,
+                esSrc1.id to testDataSrc1,
+                esEdgeSrc1.id to testDataEdgeSrc1)
+        )
+        val ids1 = allIds1.getValue(es1.id)
+        val idsDst1 = allIds1.getValue(esDst1.id)
+        val idsEdgeDst1 = allIds1.getValue(esEdgeDst1.id)
+        val idsSrc1 = allIds1.getValue(esSrc1.id)
+        val idsEdgeSrc1 = allIds1.getValue(esEdgeSrc1.id)
 
         val edgesDst1 = ids1.mapIndexed { index, _ ->
             DataEdgeKey(
@@ -1437,11 +1447,18 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataSrc2 = TestDataFactory.randomStringEntityData(numberOfEntries, src2.properties).values.toList()
         val testDataEdgeSrc2 = TestDataFactory.randomStringEntityData(numberOfEntries, edgeSrc2.properties).values.toList()
 
-        val ids2 = dataApi.createEntities(es2.id, testData2)
-        val idsDst2 = dataApi.createEntities(esDst2.id, testDataDst2)
-        val idsEdgeDst2 = dataApi.createEntities(esEdgeDst2.id, testDataEdgeDst2)
-        val idsSrc2 = dataApi.createEntities(esSrc2.id, testDataSrc2)
-        val idsEdgeSrc2 = dataApi.createEntities(esEdgeSrc2.id, testDataEdgeSrc2)
+        val allIds2 = dataApi.createEntities(mapOf(
+                es2.id to testData2,
+                esDst2.id to testDataDst2,
+                esEdgeDst2.id to testDataEdgeDst2,
+                esSrc2.id to testDataSrc2,
+                esEdgeSrc2.id to testDataEdgeSrc2)
+        )
+        val ids2 = allIds2.getValue(es2.id)
+        val idsDst2 = allIds2.getValue(esDst2.id)
+        val idsEdgeDst2 = allIds2.getValue(esEdgeDst2.id)
+        val idsSrc2 = allIds2.getValue(esSrc2.id)
+        val idsEdgeSrc2 = allIds2.getValue(esEdgeSrc2.id)
 
         val edgesDst2 = ids2.mapIndexed { index, _ ->
             DataEdgeKey(
@@ -1503,7 +1520,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testData = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties)
 
         val entries = testData.values.toList()
-        dataApi.createEntities(es.id, entries)
+        dataApi.createEntities(mapOf(es.id to entries))
 
         Assert.assertEquals(0L, dataApi.getEntitySetSize(es.id))
 

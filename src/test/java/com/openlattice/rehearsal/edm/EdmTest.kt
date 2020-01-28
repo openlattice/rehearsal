@@ -104,7 +104,7 @@ class EdmTest : MultipleAuthenticatedUsersBase() {
         val personGivenNamePropertyId = EdmTestConstants.personGivenNameId
         val entries = (1..numberOfEntries)
                 .map { mapOf(personGivenNamePropertyId to setOf(RandomStringUtils.randomAscii(5))) }.toList()
-        dataApi.createEntities(es1.id, entries)
+        dataApi.createEntities(mapOf(es1.id to entries))
 
         val ess = EntitySetSelection(Optional.of(EdmTestConstants.personEt.properties))
         Assert.assertEquals(numberOfEntries, dataApi.loadSelectedEntitySetData(es1.id, ess, FileType.json).toList().size)
@@ -143,7 +143,7 @@ class EdmTest : MultipleAuthenticatedUsersBase() {
         val es = createEntitySet(et)
 
         val testData1 = TestDataFactory.randomStringEntityData(1, et.properties).values.toList()
-        val ids1 = dataApi.createEntities(es.id, testData1).toSet()
+        val ids1 = dataApi.createEntities(mapOf(es.id to testData1)).getValue(es.id).toSet()
 
         val ess1 = EntitySetSelection(Optional.empty(), Optional.of(ids1))
         Assert.assertEquals(3, dataApi.loadSelectedEntitySetData(es.id, ess1, FileType.json).first().keys.size)
@@ -155,7 +155,7 @@ class EdmTest : MultipleAuthenticatedUsersBase() {
         Assert.assertEquals(3, dataApi.loadSelectedEntitySetData(es.id, ess1, FileType.json).first().keys.size)
 
         val testData2 = TestDataFactory.randomStringEntityData(1, (et.properties + pt2.id)).values.toList()
-        val ids2 = dataApi.createEntities(es.id, testData2).toSet()
+        val ids2 = dataApi.createEntities(mapOf(es.id to testData2)).getValue(es.id).toSet()
         val ess2 = EntitySetSelection(Optional.empty(), Optional.of(ids1 + ids2))
         Assert.assertEquals(
                 4,
@@ -188,7 +188,7 @@ class EdmTest : MultipleAuthenticatedUsersBase() {
         val pt1 = createPropertyType()
         val et = createEntityType(pt1.id)
         val newtitle = "New Title !"
-        val update =  MetadataUpdate(
+        val update = MetadataUpdate(
                 Optional.of(newtitle),
                 Optional.empty(),
                 Optional.empty(),
@@ -203,7 +203,7 @@ class EdmTest : MultipleAuthenticatedUsersBase() {
                 Optional.empty(),
                 Optional.empty()
         )
-        edmApi.updateEntityTypePropertyMetadata( et.id , pt1.id, update )
+        edmApi.updateEntityTypePropertyMetadata(et.id, pt1.id, update)
         val metadata = edmApi.getEntityTypePropertyMetadata(et.id, pt1.id)
         Assert.assertEquals(
                 newtitle,

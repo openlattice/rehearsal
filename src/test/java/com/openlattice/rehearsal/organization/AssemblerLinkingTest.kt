@@ -77,7 +77,7 @@ class AssemblerLinkingTest : AssemblerTestBase() {
             while (!checkLinkingFinished(importedEntitySets.keys)) {
                 Thread.sleep(5000L)
             }
-            
+
             personEt = EdmTestConstants.personEt
 
             organization = createOrganization()
@@ -112,8 +112,7 @@ class AssemblerLinkingTest : AssemblerTestBase() {
             mapOf(EdmTestConstants.personGivenNameId to setOf(RandomStringUtils.randomAscii(5)))
         }
 
-        dataApi.createEntities(esId1, givenNames)
-        dataApi.createEntities(esId2, givenNames)
+        dataApi.createEntities(mapOf(esId1 to givenNames, esId2 to givenNames))
 
 
         // materialize linking entity set
@@ -252,8 +251,7 @@ class AssemblerLinkingTest : AssemblerTestBase() {
         val givenNames2 = (1..numberOfEntities).map {
             mapOf(EdmTestConstants.personGivenNameId to setOf(RandomStringUtils.randomAscii(5)))
         }
-        dataApi.createEntities(esId1, givenNames1)
-        dataApi.createEntities(esId2, givenNames2)
+        dataApi.createEntities(mapOf(esId1 to givenNames1, esId2 to givenNames2))
 
         // wait while linking finishes
         Thread.sleep(5000)
@@ -398,8 +396,9 @@ class AssemblerLinkingTest : AssemblerTestBase() {
         val givenNames = (1..numberOfEntities).map {
             mapOf(EdmTestConstants.personGivenNameId to setOf(RandomStringUtils.randomAscii(5)))
         }
-        val ids1 = dataApi.createEntities(esId1, givenNames)
-        val ids2 = dataApi.createEntities(esId2, givenNames)
+        val ids = dataApi.createEntities(mapOf(esId1 to givenNames, esId2 to givenNames))
+        val ids1 = ids.getValue(esId1)
+        val ids2 = ids.getValue(esId1)
 
         Assert.assertTrue(
                 organizationsApi.getOrganizationEntitySets(organizationID)[esLinking.id]!!
@@ -580,17 +579,17 @@ class AssemblerLinkingTest : AssemblerTestBase() {
         val givenNames = (1..numberOfEntities).map {
             mapOf(EdmTestConstants.personGivenNameId to setOf(RandomStringUtils.randomAscii(5)))
         }
-        val ids = dataApi.createEntities(esId, givenNames)
-
         val testDataDst = randomStringEntityData(numberOfEntities, dst.properties).values.toList()
-        val idsDst = dataApi.createEntities(esDst.id, testDataDst)
-
         val testDataEdge = randomStringEntityData(numberOfEntities, edge.properties).values.toList()
-        val idsEdge = dataApi.createEntities(esEdge.id, testDataEdge)
 
-        val edges = ids.mapIndexed { index, _ ->
+        val ids = dataApi.createEntities(mapOf(esId to givenNames, esDst.id to testDataDst, esEdge.id to testDataEdge))
+        val idsSrc = ids.getValue(esId)
+        val idsDst = ids.getValue(esDst.id)
+        val idsEdge = ids.getValue(esEdge.id)
+
+        val edges = idsSrc.mapIndexed { index, _ ->
             DataEdgeKey(
-                    EntityDataKey(esId, ids[index]),
+                    EntityDataKey(esId, idsSrc[index]),
                     EntityDataKey(esDst.id, idsDst[index]),
                     EntityDataKey(esEdge.id, idsEdge[index])
             )
@@ -642,8 +641,7 @@ class AssemblerLinkingTest : AssemblerTestBase() {
                         EdmTestConstants.personGivenNameId to setOf(RandomStringUtils.randomAscii(5))
                 )
         )
-        dataApi.createEntities(esId1, givenNames1)
-        dataApi.createEntities(esId2, givenNames2)
+        dataApi.createEntities(mapOf(esId1 to givenNames1, esId2 to givenNames2))
 
 
         // remove permission of user1 on imported entity sets

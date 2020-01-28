@@ -66,9 +66,10 @@ class AssemblerTest : AssemblerTestBase() {
         val entitiesDst = TestDataFactory.randomStringEntityData(numberOfEntities, dst.properties).values.toList()
         val entitiesEdge = TestDataFactory.randomStringEntityData(numberOfEntities, edge.properties).values.toList()
 
-        val idsSrc = dataApi.createEntities(esSrc.id, entitiesSrc)
-        val idsDst = dataApi.createEntities(esDst.id, entitiesDst)
-        val idsEdge = dataApi.createEntities(esEdge.id, entitiesEdge)
+        val ids = dataApi.createEntities(mapOf(esSrc.id to entitiesSrc, esDst.id to entitiesDst, esEdge.id to entitiesEdge))
+        val idsSrc = ids.getValue(esSrc.id)
+        val idsDst = ids.getValue(esDst.id)
+        val idsEdge = ids.getValue(esEdge.id)
 
         val edges = idsSrc.mapIndexed { index, _ ->
             DataEdgeKey(
@@ -252,7 +253,7 @@ class AssemblerTest : AssemblerTestBase() {
                         .contains(OrganizationEntitySetFlag.DATA_UNSYNCHRONIZED)
         )
         val testData = TestDataFactory.randomStringEntityData(numberOfEntities, et.properties).values.toList()
-        val ids = dataApi.createEntities(es.id, testData)
+        val ids = dataApi.createEntities(mapOf(es.id to testData)).getValue(es.id)
         val testDataWithIds = ids.zip(testData).toMap()
 
         Assert.assertTrue(
@@ -392,9 +393,12 @@ class AssemblerTest : AssemblerTestBase() {
         val entitiesDst = TestDataFactory.randomStringEntityData(numberOfEntities, dst.properties).values.toList()
         val entitiesEdge = TestDataFactory.randomStringEntityData(numberOfEntities, edge.properties).values.toList()
 
-        val idsSrc = dataApi.createEntities(esSrc.id, entitiesSrc)
-        val idsDst = dataApi.createEntities(esDst.id, entitiesDst)
-        val idsEdge = dataApi.createEntities(esEdge.id, entitiesEdge)
+        val ids = dataApi.createEntities(
+                mapOf(esSrc.id to entitiesSrc, esDst.id to entitiesDst, esEdge.id to entitiesEdge)
+        )
+        val idsSrc = ids.getValue(esSrc.id)
+        val idsDst = ids.getValue(esDst.id)
+        val idsEdge = ids.getValue(esEdge.id)
 
         val edges = idsSrc.mapIndexed { index, _ ->
             DataEdgeKey(
@@ -474,7 +478,7 @@ class AssemblerTest : AssemblerTestBase() {
         val es = createEntitySet(et)
 
         val testData = TestDataFactory.randomStringEntityData(numberOfEntities, et.properties).values.toList()
-        dataApi.createEntities(es.id, testData).toSet().zip(testData).toMap()
+        dataApi.createEntities(mapOf(es.id to testData)).getValue(es.id).zip(testData).toMap()
 
         // add user1 as member of organization
         OrganizationControllerCallHelper.addMemberToOrganization(organizationID, user1.id)
@@ -713,7 +717,7 @@ class AssemblerTest : AssemblerTestBase() {
                         .contains(OrganizationEntitySetFlag.DATA_UNSYNCHRONIZED)
         )
         val testData = TestDataFactory.randomStringEntityData(numberOfEntities, et.properties).values.toList()
-        val ids = dataApi.createEntities(es.id, testData)
+        val ids = dataApi.createEntities(mapOf(es.id to testData)).getValue(es.id)
         val testDataWithIds = ids.zip(testData).toMap()
 
         Assert.assertTrue(
@@ -800,7 +804,7 @@ class AssemblerTest : AssemblerTestBase() {
         organizationsApi.deleteRefreshRate(organizationID, es.id)
 
         // add data again
-        dataApi.createEntities(es.id, testData)
+        dataApi.createEntities(mapOf(es.id to testData))
 
         // wait until last value of automatic refresh
         Thread.sleep(refreshRate.toLong() * 60 * 1000)
@@ -844,9 +848,12 @@ class AssemblerTest : AssemblerTestBase() {
         val entitiesDst = TestDataFactory.randomStringEntityData(numberOfEntities, dst.properties).values.toList()
         val entitiesEdge = TestDataFactory.randomStringEntityData(numberOfEntities, edge.properties).values.toList()
 
-        val idsSrc = dataApi.createEntities(esSrc.id, entitiesSrc)
-        val idsDst = dataApi.createEntities(esDst.id, entitiesDst)
-        val idsEdge = dataApi.createEntities(esEdge.id, entitiesEdge)
+        val ids = dataApi.createEntities(
+                mapOf(esSrc.id to entitiesSrc, esDst.id to entitiesDst, esEdge.id to entitiesEdge)
+        )
+        val idsSrc = ids.getValue(esSrc.id)
+        val idsDst = ids.getValue(esDst.id)
+        val idsEdge = ids.getValue(esEdge.id)
 
         val edges = idsSrc.mapIndexed { index, _ ->
             DataEdgeKey(
@@ -951,7 +958,7 @@ class AssemblerTest : AssemblerTestBase() {
 
         // add data
         val entities = TestDataFactory.randomStringEntityData(numberOfEntities, et.properties).values.toList()
-        dataApi.createEntities(es.id, entities)
+        dataApi.createEntities(mapOf(es.id to entities))
 
         // materialize entity set
         grantMaterializePermissions(organization, es, setOf())
@@ -1011,7 +1018,7 @@ class AssemblerTest : AssemblerTestBase() {
         val es = createEntitySet(et, organizationID)
 
         val entities = TestDataFactory.randomStringEntityData(numberOfEntities, et.properties).values.toList()
-        dataApi.createEntities(es.id, entities)
+        dataApi.createEntities(mapOf(es.id to entities))
 
         grantMaterializePermissions(organization, es, setOf())
         organizationsApi.assembleEntitySets(organizationID, mapOf(es.id to null))
@@ -1143,7 +1150,7 @@ class AssemblerTest : AssemblerTestBase() {
 
         // add data
         val entities = TestDataFactory.randomStringEntityData(numberOfEntities, et.properties).values.toList()
-        dataApi.createEntities(es.id, entities)
+        dataApi.createEntities(mapOf(es.id to entities))
 
         // integrate data from local db to org openlattice schema
         val organizationUserCredentials = organizationsApi.getOrganizationIntegrationAccount(organization2.id)

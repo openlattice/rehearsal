@@ -79,15 +79,16 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         val entriesDst = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties).values.toList()
         val entriesEdge = TestDataFactory.randomStringEntityData(numberOfEntries, edgeEt.properties).values.toList()
 
-        val ids = dataApi.createEntities(es.id, entries)
-        val id = ids.first()
-        val idsDst = dataApi.createEntities(dst.id, entriesDst)
-        val idsEdge = dataApi.createEntities(edge.id, entriesEdge)
+        val ids = dataApi.createEntities(mapOf(es.id to entries, dst.id to entriesDst, edge.id to entriesEdge))
+        val idsSrc = ids.getValue(es.id)
+        val id = idsSrc.first()
+        val idsDst = ids.getValue(dst.id)
+        val idsEdge = ids.getValue(edge.id)
 
 
-        val edges = ids.mapIndexed { index, _ ->
+        val edges = idsSrc.mapIndexed { index, _ ->
             DataEdgeKey(
-                    EntityDataKey(es.id, ids[index]),
+                    EntityDataKey(es.id, idsSrc[index]),
                     EntityDataKey(dst.id, idsDst[index]),
                     EntityDataKey(edge.id, idsEdge[index])
             )
@@ -101,7 +102,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         val searchTerm = SearchTerm("*", 0, 10)
         val advancedSearchTerm = AdvancedSearch(
                 listOf(SearchDetails("*", pt, false)), 0, 100)
-        val neighborsFilter = EntityNeighborsFilter(mapOf(es.id to ids.toSet()))
+        val neighborsFilter = EntityNeighborsFilter(mapOf(es.id to idsSrc.toSet()))
 
 
         // try to read data with no permissions on it
@@ -157,15 +158,19 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
 
         val noNeighborData5 = searchApi.executeFilteredEntityNeighborSearch(neighborsFilter)
         Assert.assertEquals(numberOfEntries, noNeighborData5.size)
-        Assert.assertEquals(1, noNeighborData5.getValue(ids.random()).size)
-        Assert.assertEquals(setOf(EdmConstants.ID_FQN), noNeighborData5.getValue(ids.random())[0].associationDetails.keys)
-        Assert.assertEquals(setOf(EdmConstants.ID_FQN), noNeighborData5.getValue(ids.random())[0].neighborDetails.get().keys)
+        Assert.assertEquals(1, noNeighborData5.getValue(idsSrc.random()).size)
+        Assert.assertEquals(
+                setOf(EdmConstants.ID_FQN), noNeighborData5.getValue(idsSrc.random())[0].associationDetails.keys
+        )
+        Assert.assertEquals(
+                setOf(EdmConstants.ID_FQN), noNeighborData5.getValue(idsSrc.random())[0].neighborDetails.get().keys
+        )
 
         val noNeighborData6 = searchApi.executeFilteredEntityNeighborIdsSearch(neighborsFilter)
         Assert.assertEquals(numberOfEntries, noNeighborData6.size)
-        Assert.assertEquals(1, noNeighborData6.getValue(ids.random()).size)
-        Assert.assertEquals(1, noNeighborData6.getValue(ids.random()).getValue(edge.id).size)
-        Assert.assertEquals(setOf(dst.id), noNeighborData6.getValue(ids.random()).getValue(edge.id).keys)
+        Assert.assertEquals(1, noNeighborData6.getValue(idsSrc.random()).size)
+        Assert.assertEquals(1, noNeighborData6.getValue(idsSrc.random()).getValue(edge.id).size)
+        Assert.assertEquals(setOf(dst.id), noNeighborData6.getValue(idsSrc.random()).getValue(edge.id).keys)
 
         loginAs("admin")
 
@@ -210,18 +215,18 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         Assert.assertEquals(numberOfEntries, neighborData2.size)
         Assert.assertEquals(
                 setOf(EdmConstants.ID_FQN, associationPropertyType.type),
-                neighborData2.getValue(ids.random())[0].associationDetails.keys
+                neighborData2.getValue(idsSrc.random())[0].associationDetails.keys
         )
         Assert.assertEquals(
                 setOf(EdmConstants.ID_FQN, propertyType.type),
-                neighborData2.getValue(ids.random())[0].neighborDetails.get().keys
+                neighborData2.getValue(idsSrc.random())[0].neighborDetails.get().keys
         )
 
         val neighborData3 = searchApi.executeFilteredEntityNeighborIdsSearch(neighborsFilter)
         Assert.assertEquals(numberOfEntries, neighborData3.size)
-        Assert.assertEquals(1, neighborData3.getValue(ids.random()).size)
-        Assert.assertEquals(1, neighborData3.getValue(ids.random()).getValue(edge.id).size)
-        Assert.assertEquals(setOf(dst.id), neighborData3.getValue(ids.random()).getValue(edge.id).keys)
+        Assert.assertEquals(1, neighborData3.getValue(idsSrc.random()).size)
+        Assert.assertEquals(1, neighborData3.getValue(idsSrc.random()).getValue(edge.id).size)
+        Assert.assertEquals(setOf(dst.id), neighborData3.getValue(idsSrc.random()).getValue(edge.id).keys)
 
         loginAs("admin")
 
@@ -281,16 +286,16 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         Assert.assertEquals(numberOfEntries, neighborData5.size)
         Assert.assertEquals(
                 edgeEt.properties.map { edmApi.getPropertyType(it).type }.toSet() + setOf(EdmConstants.ID_FQN),
-                neighborData5.getValue(ids.random())[0].associationDetails.keys)
+                neighborData5.getValue(idsSrc.random())[0].associationDetails.keys)
         Assert.assertEquals(
                 et.properties.map { edmApi.getPropertyType(it).type }.toSet() + setOf(EdmConstants.ID_FQN),
-                neighborData5.getValue(ids.random())[0].neighborDetails.get().keys)
+                neighborData5.getValue(idsSrc.random())[0].neighborDetails.get().keys)
 
         val neighborData6 = searchApi.executeFilteredEntityNeighborIdsSearch(neighborsFilter)
         Assert.assertEquals(numberOfEntries, neighborData6.size)
-        Assert.assertEquals(1, neighborData6.getValue(ids.random()).size)
-        Assert.assertEquals(1, neighborData6.getValue(ids.random()).getValue(edge.id).size)
-        Assert.assertEquals(setOf(dst.id), neighborData6.getValue(ids.random()).getValue(edge.id).keys)
+        Assert.assertEquals(1, neighborData6.getValue(idsSrc.random()).size)
+        Assert.assertEquals(1, neighborData6.getValue(idsSrc.random()).getValue(edge.id).size)
+        Assert.assertEquals(setOf(dst.id), neighborData6.getValue(idsSrc.random()).getValue(edge.id).keys)
 
         loginAs("admin")
     }
@@ -302,7 +307,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         val es = createEntitySet(et)
 
         val testData = TestDataFactory.randomStringEntityData(6, et.properties).values.toList()
-        val entities = dataApi.createEntities(es.id, testData).toSet().zip(testData).toMap()
+        val entities = dataApi.createEntities(mapOf(es.id to testData)).getValue(es.id).zip(testData).toMap()
 
         // should be indexed automatically
         val idsList = entities.keys.toList()
@@ -378,8 +383,9 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
 
         // add data
         val testData = TestDataFactory.randomStringEntityData(2, et.properties).values.toList()
-        val id1 = dataApi.createEntities(es1.id, testData).first()
-        val id2 = dataApi.createEntities(es2.id, testData).first()
+        val ids = dataApi.createEntities(mapOf(es1.id to testData, es2.id to testData))
+        val id1 = ids.getValue(es1.id).first()
+        val id2 = ids.getValue(es2.id).first()
         Thread.sleep(1000)
 
         // should be indexed automatically
@@ -432,7 +438,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
 
         val numberOfEntities = 10
         val testData = TestDataFactory.randomStringEntityData(numberOfEntities, et.properties).values.toList()
-        dataApi.createEntities(es.id, testData).toSet().zip(testData).toMap()
+        dataApi.createEntities(mapOf(es.id to testData)).getValue(es.id).zip(testData).toMap()
         Thread.sleep(1000)
 
         val searchMax0 = SearchTerm("*", 0, 0)
@@ -479,7 +485,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
 
         val numberOfEntities = 100
         val testData = TestDataFactory.randomStringEntityData(numberOfEntities, et.properties).values.toList()
-        val entities = dataApi.createEntities(es.id, testData).toSet().zip(testData).toMap()
+        val entities = dataApi.createEntities(mapOf(es.id to testData)).getValue(es.id).zip(testData).toMap()
         Thread.sleep(1000)
 
         // should be indexed automatically

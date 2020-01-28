@@ -20,7 +20,7 @@ class EntitySetsTest : MultipleAuthenticatedUsersBase() {
 
     companion object {
 
-        val tTLOneDay: Long = 24 * 60 * 60 * 1000
+        const val tTLOneDay: Long = 24 * 60 * 60 * 1000
         lateinit var personEt: EntityType
 
         @JvmStatic
@@ -31,7 +31,7 @@ class EntitySetsTest : MultipleAuthenticatedUsersBase() {
             personEt = EdmTestConstants.personEt
         }
 
-        fun createExpirationUpdate(expiration: Optional<DataExpiration>) : MetadataUpdate {
+        fun createExpirationUpdate(expiration: Optional<DataExpiration>): MetadataUpdate {
             return MetadataUpdate(Optional.empty(), Optional.empty(), Optional.empty(),
                     Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
                     Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
@@ -134,7 +134,7 @@ class EntitySetsTest : MultipleAuthenticatedUsersBase() {
         val es = createEntitySet(personEt)
         val entries = (1..10)
                 .map { mapOf(EdmTestConstants.personGivenNameId to setOf(RandomStringUtils.randomAscii(5))) }
-        dataApi.createEntities(es.id, entries)
+        dataApi.createEntities(mapOf(es.id to entries))
 
         //set first_write expiration policy
         val tTL: Long = 24 * 60 * 60 * 1000 //one day
@@ -156,7 +156,7 @@ class EntitySetsTest : MultipleAuthenticatedUsersBase() {
         val es = createEntitySet(personEt)
         val entries = (1..10)
                 .map { mapOf(EdmTestConstants.personGivenNameId to setOf(RandomStringUtils.randomAscii(5))) }
-        dataApi.createEntities(es.id, entries)
+        dataApi.createEntities(mapOf(es.id to entries))
 
         //set last_write expiration policy
         val tTL: Long = 24 * 60 * 60 * 1000 //one day
@@ -176,12 +176,16 @@ class EntitySetsTest : MultipleAuthenticatedUsersBase() {
     fun testGetExpiringEntitiesByDateProperty() {
         //create entity set
         val es = createEntitySet(personEt)
-        val entries = (1..10)
-                .map { mapOf(EdmTestConstants.personDateOfBirthId to setOf(LocalDate.now())) }
-        dataApi.createEntities(es.id, entries)
+        val entries = (1..10).map { mapOf(EdmTestConstants.personDateOfBirthId to setOf(LocalDate.now())) }
+        dataApi.createEntities(mapOf(es.id to entries))
 
         //set date_property expiration policy
-        val expirationPolicy = DataExpiration(tTLOneDay, ExpirationBase.DATE_PROPERTY, DeleteType.Hard, Optional.of(EdmTestConstants.personDateOfBirthId))
+        val expirationPolicy = DataExpiration(
+                tTLOneDay,
+                ExpirationBase.DATE_PROPERTY,
+                DeleteType.Hard,
+                Optional.of(EdmTestConstants.personDateOfBirthId)
+        )
         val update3 = createExpirationUpdate(Optional.of(expirationPolicy))
         entitySetsApi.updateEntitySetMetadata(es.id, update3)
 

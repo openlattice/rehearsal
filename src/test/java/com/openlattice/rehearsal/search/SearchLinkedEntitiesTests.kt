@@ -280,7 +280,7 @@ class SearchLinkedEntitiesTests : SetupTestData() {
                 EdmTestConstants.personGivenNameId,
                 EdmTestConstants.personSurnameId)
         val entityData = testDataProperties.map { it to setOf("test") }.toMap()
-        val newAEntityIds = dataApi.createEntities(socratesAId, listOf(entityData))
+        val newAEntityIds = dataApi.createEntities(mapOf(socratesAId to listOf(entityData))).getValue(socratesAId)
 
         Thread.sleep(10000L) // wait for linking to finish
         while (!checkLinkingFinished(importedEntitySets.keys)) {
@@ -324,7 +324,8 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         // when deleting entity, and there is no left entity left with that linking_id
         val entityData2 = testDataProperties.map { it to setOf("newtestt") }.toMap()
         // Note: we assume, when creating 2 entities with same values, that they get linked in this tests
-        val newBEntityIds = dataApi.createEntities(socratesBId, listOf(entityData2, entityData2))
+        val newBEntityIds = dataApi.createEntities(mapOf(socratesBId to listOf(entityData2, entityData2)))
+                .getValue(socratesBId)
 
         Thread.sleep(10000L) // wait for linking to finish
         while (!checkLinkingFinished(importedEntitySets.keys)) {
@@ -444,9 +445,9 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         val entriesDst = TestDataFactory.randomStringEntityData(numberOfEntries, et.properties).values.toList()
         val entriesEdge = TestDataFactory.randomStringEntityData(numberOfEntries, at.properties).values.toList()
 
-        val idsDst = dataApi.createEntities(dst.id, entriesDst)
-        val idsEdge = dataApi.createEntities(edge.id, entriesEdge)
-
+        val ids = dataApi.createEntities(mapOf(dst.id to entriesDst, edge.id to entriesEdge))
+        val idsDst = ids.getValue(dst.id)
+        val idsEdge = ids.getValue(edge.id)
 
         val edges = (ids1 + ids2).mapIndexed { index, _ ->
             val src = if (index < ids1.size) {

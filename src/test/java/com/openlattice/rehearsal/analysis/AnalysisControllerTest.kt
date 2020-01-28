@@ -24,10 +24,10 @@ class AnalysisControllerTest : MultipleAuthenticatedUsersBase() {
 
         // Create linking entityset and add person entityset to it
         val personEntityTypeId = EdmTestConstants.personEt.id
-        val personEt = edmApi.getEntityType( personEntityTypeId )
-        val personEs = createEntitySet( personEt )
+        val personEt = edmApi.getEntityType(personEntityTypeId)
+        val personEs = createEntitySet(personEt)
 
-        val linkingEs = createEntitySet( EdmTestConstants.personEt, true, setOf(personEs.id) )
+        val linkingEs = createEntitySet(EdmTestConstants.personEt, true, setOf(personEs.id))
 
         // Create edge and src entitysets (linked entity set is dst)
         val edge = createEdgeEntityType()
@@ -41,26 +41,27 @@ class AnalysisControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataDst = TestDataFactory.randomStringEntityData(
                 numberOfEntries,
                 personEt.properties
-                        .map { edmApi.getPropertyType( it ) }
+                        .map { edmApi.getPropertyType(it) }
                         .filter { it.datatype == EdmPrimitiveTypeKind.String }
                         .map { it.id }
-                        .toSet() )
+                        .toSet())
 
 
         val entriesSrc = testDataSrc.values.toList()
-        val idsSrc = dataApi.createEntities(esSrc.id, entriesSrc)
         val entriesDst = testDataDst.values.toList()
-        val idsDst = dataApi.createEntities(personEs.id, entriesDst)
+        val ids = dataApi.createEntities(mapOf(esSrc.id to entriesSrc, personEs.id to entriesDst))
+        val idsSrc = ids.getValue(esSrc.id)
+        val idsDst = ids.getValue(personEs.id)
 
         val edgeData = createDataEdges(esEdge.id, esSrc.id, personEs.id, edge.properties, idsSrc, idsDst, numberOfEntries)
         dataApi.createAssociations(edgeData)
 
-        val neighborTypes = analysisApi.getNeighborTypes( linkingEs.id )
+        val neighborTypes = analysisApi.getNeighborTypes(linkingEs.id)
 
-        Assert.assertEquals( 1, neighborTypes.count() )
+        Assert.assertEquals(1, neighborTypes.count())
         neighborTypes.forEach {
-            Assert.assertEquals( edge , it.associationEntityType )
-            Assert.assertEquals( src, it.neighborEntityType )
+            Assert.assertEquals(edge, it.associationEntityType)
+            Assert.assertEquals(src, it.neighborEntityType)
         }
     }
 }

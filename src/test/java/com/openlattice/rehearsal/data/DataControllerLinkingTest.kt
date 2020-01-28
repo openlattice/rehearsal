@@ -99,8 +99,7 @@ class DataControllerLinkingTest : SetupTestData() {
             mapOf(personGivenNamePropertyId to setOf(RandomStringUtils.randomAscii(5)))
         }
 
-        dataApi.createEntities(esId1, givenNames)
-        dataApi.createEntities(esId2, givenNames)
+        dataApi.createEntities(mapOf(esId1 to givenNames, esId2 to givenNames))
 
         val ess = EntitySetSelection(Optional.of(setOf(personGivenNamePropertyId)), Optional.empty())
 
@@ -140,8 +139,7 @@ class DataControllerLinkingTest : SetupTestData() {
             mapOf(personGivenNamePropertyId to setOf(RandomStringUtils.randomAscii(5)))
         }
 
-        dataApi.createEntities(esId1, givenNames)
-        dataApi.createEntities(esId2, givenNames)
+        dataApi.createEntities(mapOf(esId1 to givenNames, esId2 to givenNames))
 
         // wait while linking finishes
         Thread.sleep(5000)
@@ -197,8 +195,7 @@ class DataControllerLinkingTest : SetupTestData() {
             )
         }
 
-        dataApi.createEntities(esId1, testData)
-        dataApi.createEntities(esId2, testData)
+        dataApi.createEntities(mapOf(esId1 to testData, esId2 to testData))
 
         // wait while linking finishes
         Thread.sleep(5000)
@@ -455,8 +452,7 @@ class DataControllerLinkingTest : SetupTestData() {
             )
         }
 
-        dataApi.createEntities(esId1, names)
-        dataApi.createEntities(esId2, names)
+        dataApi.createEntities(mapOf(esId1 to names, esId2 to names))
 
         // wait while linking finishes
         Thread.sleep(5000)
