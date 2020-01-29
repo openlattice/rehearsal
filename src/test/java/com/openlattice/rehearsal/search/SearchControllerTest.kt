@@ -102,7 +102,7 @@ class SearchControllerTest : MultipleAuthenticatedUsersBase() {
         val searchTerm = SearchTerm("*", 0, 10)
         val advancedSearchTerm = AdvancedSearch(
                 listOf(SearchDetails("*", pt, false)), 0, 100)
-        val neighborsFilter = EntityNeighborsFilter(mapOf(es.id to idsSrc.toSet()))
+        val neighborsFilter = EntityNeighborsFilterBulk(mapOf(es.id to idsSrc.toSet()))
 
 
         // try to read data with no permissions on it

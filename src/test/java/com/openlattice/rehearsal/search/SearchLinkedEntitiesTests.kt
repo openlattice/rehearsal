@@ -469,7 +469,7 @@ class SearchLinkedEntitiesTests : SetupTestData() {
         val searchTerm = SearchTerm("*", 0, 100)
         val advancedSearchTerm = AdvancedSearch(
                 listOf(SearchDetails("*", personPt, false)), 0, 100)
-        val neighborsFilter = EntityNeighborsFilter(mapOf(esLinking.id to linkingIds.toSet()))
+        val neighborsFilter = EntityNeighborsFilterBulk(mapOf(esLinking.id to linkingIds.toSet()))
 
 
         // try to read data with no permissions on it

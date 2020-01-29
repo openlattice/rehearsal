@@ -35,7 +35,7 @@ import com.openlattice.mapstores.TestDataFactory
 import com.openlattice.rehearsal.assertException
 import com.openlattice.rehearsal.authentication.MultipleAuthenticatedUsersBase
 import com.openlattice.rehearsal.edm.EdmTestConstants
-import com.openlattice.search.requests.EntityNeighborsFilter
+import com.openlattice.search.requests.EntityNeighborsFilterBulk
 import com.openlattice.search.requests.SearchTerm
 import org.apache.commons.lang.RandomStringUtils
 import org.apache.olingo.commons.api.edm.FullQualifiedName
@@ -840,7 +840,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         assertException(
                 {
                     dataApi.deleteEntitiesAndNeighbors(
-                            EntityNeighborsFilter(
+                            EntityNeighborsFilterBulk(
                                     mapOf(es.id to newEntityIds.toSet()),
                                     Optional.empty(),
                                     Optional.of(setOf(esDst.id)),
@@ -866,7 +866,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         assertException(
                 {
                     dataApi.deleteEntitiesAndNeighbors(
-                            EntityNeighborsFilter(
+                            EntityNeighborsFilterBulk(
                                     mapOf(es.id to newEntityIds.toSet()),
                                     Optional.empty(),
                                     Optional.of(setOf(esDst.id)),
@@ -893,7 +893,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         assertException(
                 {
                     dataApi.deleteEntitiesAndNeighbors(
-                            EntityNeighborsFilter(
+                            EntityNeighborsFilterBulk(
                                     mapOf(es.id to newEntityIds.toSet()),
                                     Optional.empty(),
                                     Optional.of(setOf(esDst.id)),
@@ -920,7 +920,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         assertException(
                 {
                     dataApi.deleteEntitiesAndNeighbors(
-                            EntityNeighborsFilter(
+                            EntityNeighborsFilterBulk(
                                     mapOf(es.id to newEntityIds.toSet()),
                                     Optional.empty(),
                                     Optional.of(setOf(esDst.id)),
@@ -997,7 +997,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         assertException(
                 {
                     dataApi.deleteEntitiesAndNeighbors(
-                            EntityNeighborsFilter(
+                            EntityNeighborsFilterBulk(
                                     mapOf(es.id to newEntityIds.toSet()),
                                     Optional.empty(),
                                     Optional.of(setOf(esDst.id)),
@@ -1025,7 +1025,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         assertException(
                 {
                     dataApi.deleteEntitiesAndNeighbors(
-                            EntityNeighborsFilter(
+                            EntityNeighborsFilterBulk(
                                     mapOf(es.id to newEntityIds.toSet()),
                                     Optional.empty(),
                                     Optional.of(setOf(esDst.id)),
@@ -1052,7 +1052,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         assertException(
                 {
                     dataApi.deleteEntitiesAndNeighbors(
-                            EntityNeighborsFilter(
+                            EntityNeighborsFilterBulk(
                                     mapOf(es.id to newEntityIds.toSet()),
                                     Optional.empty(),
                                     Optional.of(setOf(esDst.id)),
@@ -1392,7 +1392,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         // delete from all neighbors
         val deleteCount1 = dataApi.deleteEntitiesAndNeighbors(
-                EntityNeighborsFilter(
+                EntityNeighborsFilterBulk(
                         mapOf(es1.id to ids1.toSet()),
                         Optional.of(setOf(esSrc1.id)),
                         Optional.of(setOf(esDst1.id)),
@@ -1479,7 +1479,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         // delete from only src neighbor
         val deleteCount2 = dataApi.deleteEntitiesAndNeighbors(
-                EntityNeighborsFilter(
+                EntityNeighborsFilterBulk(
                         mapOf(es2.id to ids2.toSet()),
                         Optional.of(setOf(esSrc2.id)),
                         Optional.empty(),
