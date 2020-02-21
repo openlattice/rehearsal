@@ -87,7 +87,7 @@ class LinkingFeedbackTest : SetupTestData() {
                             arrayOf(linkingEntitySet.id), 0, 100, "*")).hits.first()
             linkingId = UUID.fromString( linkedData.getValue(EdmConstants.ID_FQN).first() as String )
 
-            val matchedEntities = realtimeLinkingApi.getMatchedEntitiesForLinkingId(linkingId)
+            val matchedEntities = realtimeLinkingApi.getMatchedEntitiesForLinkingId(linkingEntitySet.id, linkingId)
 
             // skip 1, so not all of them gets positive feedback
             allEntities = matchedEntities.flatMap { setOf(it.entityPair.first, it.entityPair.second) }.toList()
@@ -128,7 +128,7 @@ class LinkingFeedbackTest : SetupTestData() {
 
     @Test
     fun testA_addPositiveFeedback() {
-        val matchedEntities = realtimeLinkingApi.getMatchedEntitiesForLinkingId(linkingId)
+        val matchedEntities = realtimeLinkingApi.getMatchedEntitiesForLinkingId(linkingId, linkingEntitySet.id)
 
         // skip 1, so not all of them gets positive feedback
         val linkedEntities = allEntities.drop(1).toSet()
@@ -137,7 +137,7 @@ class LinkingFeedbackTest : SetupTestData() {
         waitForBackgroundServices()
 
         val oldMatchedEntities = matchedEntities.map { it.entityPair to it.match }.toMap()
-        val newlyMatchedEntities = realtimeLinkingApi.getMatchedEntitiesForLinkingId(linkingId)
+        val newlyMatchedEntities = realtimeLinkingApi.getMatchedEntitiesForLinkingId(linkingId, linkingEntitySet.id)
                 .map { it.entityPair to it.match }.toMap()
         newlyMatchedEntities.forEach {
             val oldMatches = oldMatchedEntities[it.key]
@@ -153,7 +153,7 @@ class LinkingFeedbackTest : SetupTestData() {
                 LinkingFeedback(EntityDataKey(linkingEntitySet.id, linkingId), allEntities.toSet(), setOf()))
         waitForBackgroundServices()
 
-        val newNewlyMatchedEntities = realtimeLinkingApi.getMatchedEntitiesForLinkingId(linkingId)
+        val newNewlyMatchedEntities = realtimeLinkingApi.getMatchedEntitiesForLinkingId(linkingId, linkingEntitySet.id)
         newNewlyMatchedEntities.forEach {
             val oldMatches = newlyMatchedEntities[it.entityPair]
             Assert.assertTrue(oldMatches!! <= it.match)
@@ -166,7 +166,7 @@ class LinkingFeedbackTest : SetupTestData() {
 
     @Test
     fun testB_addNegativeFeedback() {
-        val matchedEntities = realtimeLinkingApi.getMatchedEntitiesForLinkingId(linkingId)
+        val matchedEntities = realtimeLinkingApi.getMatchedEntitiesForLinkingId(linkingId, linkingEntitySet.id)
 
         val linkedEntities = (allEntities - nonLinkingEntity).toSet()
 
@@ -178,7 +178,7 @@ class LinkingFeedbackTest : SetupTestData() {
 
         waitForBackgroundServices()
 
-        val newlyMatchedEntities = realtimeLinkingApi.getMatchedEntitiesForLinkingId(linkingId)
+        val newlyMatchedEntities = realtimeLinkingApi.getMatchedEntitiesForLinkingId(linkingId, linkingEntitySet.id)
         val oldMatchedEntities = matchedEntities.map { it.entityPair to it.match }.toMap()
 
         Assert.assertFalse(newlyMatchedEntities.flatMap { setOf(it.entityPair.first, it.entityPair.second) }
@@ -217,7 +217,7 @@ class LinkingFeedbackTest : SetupTestData() {
 
     @Test
     fun testD_getFeedbackForEntity() {
-        val matchedEntities = realtimeLinkingApi.getMatchedEntitiesForLinkingId(linkingId)
+        val matchedEntities = realtimeLinkingApi.getMatchedEntitiesForLinkingId(linkingId, linkingEntitySet.id)
         val linkedEntities = (allEntities - nonLinkingEntity).toSet()
 
         // feedback on positive
