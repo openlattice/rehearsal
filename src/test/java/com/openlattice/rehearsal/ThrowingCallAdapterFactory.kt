@@ -83,6 +83,5 @@ inline fun assertException(fqn: () -> Any, expectedMsgs: List<String>) {
         expectedMsgs.forEach {
             Assert.assertTrue(actualMsg.contains(it, true))
         }
-
     }
 }
