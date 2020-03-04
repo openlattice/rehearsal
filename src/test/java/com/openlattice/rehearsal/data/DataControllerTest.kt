@@ -1544,11 +1544,17 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         val testDataSrc = TestDataFactory.randomStringEntityData(numberOfEntries, src.properties).values.toList()
         val testDataEdgeSrc = TestDataFactory.randomStringEntityData(numberOfEntries, edgeSrc.properties).values.toList()
 
-        val ids = dataApi.createEntities(es.id, testData)
-        val idsDst = dataApi.createEntities(esDst.id, testDataDst)
-        val idsEdgeDst = dataApi.createEntities(esEdgeDst.id, testDataEdgeDst)
-        val idsSrc = dataApi.createEntities(esSrc.id, testDataSrc)
-        val idsEdgeSrc = dataApi.createEntities(esEdgeSrc.id, testDataEdgeSrc)
+        val allIds = dataApi.createEntities(mapOf(
+                es.id to testData,
+                esDst.id to testDataDst,
+                esEdgeDst.id to testDataEdgeDst,
+                esSrc.id to testDataSrc,
+                esEdgeSrc.id to testDataEdgeSrc))
+        val ids = allIds.getValue(es.id)
+        val idsDst = allIds.getValue(esDst.id)
+        val idsEdgeDst = allIds.getValue(esEdgeDst.id)
+        val idsSrc = allIds.getValue(esSrc.id)
+        val idsEdgeSrc = allIds.getValue(esEdgeSrc.id)
 
         val edgesDst = ids.mapIndexed { index, _ ->
             DataEdgeKey(
@@ -1582,9 +1588,8 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         assertException(
                 {
                     dataApi.deleteEntitiesAndNeighbors(
-                            es.id,
-                            EntityNeighborsFilter(
-                                    ids.toSet(),
+                            EntityNeighborsFilterBulk(
+                                    mapOf(es.id to ids.toSet()),
                                     Optional.of(setOf(esSrc.id)), Optional.of(setOf(esDst.id)), Optional.empty()),
                             deleteType)
                 },
@@ -1609,9 +1614,8 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         assertException(
                 {
                     dataApi.deleteEntitiesAndNeighbors(
-                            es.id,
-                            EntityNeighborsFilter(
-                                    ids.toSet(),
+                            EntityNeighborsFilterBulk(
+                                    mapOf(es.id to ids.toSet()),
                                     Optional.of(setOf(esSrc.id)), Optional.of(setOf(esDst.id)), Optional.empty()),
                             deleteType)
                 },
@@ -1654,9 +1658,8 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         assertException(
                 {
                     dataApi.deleteEntitiesAndNeighbors(
-                            es.id,
-                            EntityNeighborsFilter(
-                                    ids.toSet(),
+                            EntityNeighborsFilterBulk(
+                                    mapOf(es.id to ids.toSet()),
                                     Optional.of(setOf(esSrc.id)), Optional.of(setOf(esDst.id)), Optional.empty()),
                             deleteType)
                 },
@@ -1684,9 +1687,8 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
         assertException(
                 {
                     dataApi.deleteEntitiesAndNeighbors(
-                            es.id,
-                            EntityNeighborsFilter(
-                                    ids.toSet(),
+                            EntityNeighborsFilterBulk(
+                                    mapOf(es.id to ids.toSet()),
                                     Optional.of(setOf(esSrc.id)), Optional.of(setOf(esDst.id)), Optional.empty()),
                             deleteType)
                 },
@@ -1721,9 +1723,8 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
         loginAs("user1")
         dataApi.deleteEntitiesAndNeighbors(
-                es.id,
-                EntityNeighborsFilter(
-                        ids.toSet(),
+                EntityNeighborsFilterBulk(
+                        mapOf(es.id to ids.toSet()),
                         Optional.of(setOf(esSrc.id)), Optional.of(setOf(esDst.id)), Optional.empty()),
                 deleteType)
 
