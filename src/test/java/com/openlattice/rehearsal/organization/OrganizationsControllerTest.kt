@@ -80,7 +80,7 @@ class OrganizationsControllerTest : MultipleAuthenticatedUsersBase() {
         loginAs("admin")
 
         // add ownership to user1
-        val ownerPermission = EnumSet.of(Permission.OWNER)
+        val ownerPermission = EdmAuthorizationHelper.OWNER_PERMISSION
         val acl = Acl(AclKey(organizationID), setOf(Ace(user1, ownerPermission, OffsetDateTime.MAX)))
         permissionsApi.updateAcl(AclData(acl, Action.ADD))
 
@@ -110,7 +110,7 @@ class OrganizationsControllerTest : MultipleAuthenticatedUsersBase() {
         loginAs("admin")
 
         // add ownership to user1
-        val ownerPermission = EnumSet.of(Permission.OWNER)
+        val ownerPermission = EdmAuthorizationHelper.OWNER_PERMISSION
         val acl = Acl(AclKey(organizationID), setOf(Ace(user1, ownerPermission, OffsetDateTime.MAX)))
         permissionsApi.updateAcl(AclData(acl, Action.ADD))
 

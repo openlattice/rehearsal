@@ -25,8 +25,8 @@ import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import com.google.common.cache.LoadingCache
 import com.openlattice.authorization.*
-import com.openlattice.authorization.EdmAuthorizationHelper.OWNER_PERMISSION
-import com.openlattice.authorization.EdmAuthorizationHelper.WRITE_PERMISSION
+import com.openlattice.authorization.EdmAuthorizationHelper.Companion.OWNER_PERMISSION
+import com.openlattice.authorization.EdmAuthorizationHelper.Companion.WRITE_PERMISSION
 import com.openlattice.data.*
 import com.openlattice.data.requests.EntitySetSelection
 import com.openlattice.data.requests.FileType
@@ -788,7 +788,7 @@ class DataControllerTest : MultipleAuthenticatedUsersBase() {
 
 
         /*   HARD DELETE   */
-        val ownerPermission = EnumSet.of(Permission.OWNER)
+        val ownerPermission = OWNER_PERMISSION
 
         loginAs("user1")
         assertException(

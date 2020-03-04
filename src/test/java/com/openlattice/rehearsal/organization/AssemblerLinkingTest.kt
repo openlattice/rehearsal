@@ -681,7 +681,7 @@ class AssemblerLinkingTest : AssemblerTestBase() {
         // org principal has no permission on linking entityset
         val organizationAcl = Acl(
                 AclKey(organizationID),
-                setOf(Ace(user1, EnumSet.of(Permission.OWNER), OffsetDateTime.MAX))
+                setOf(Ace(user1, EdmAuthorizationHelper.OWNER_PERMISSION, OffsetDateTime.MAX))
         )
         permissionsApi.updateAcl(AclData(organizationAcl, Action.ADD))
 
