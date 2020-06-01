@@ -34,6 +34,8 @@ import com.openlattice.authorization.AuthorizationsApi;
 import com.openlattice.authorization.Permission;
 import com.openlattice.authorization.PermissionsApi;
 import com.openlattice.authorization.securable.SecurableObjectType;
+import com.openlattice.chronicle.ChronicleApi;
+import com.openlattice.chronicle.ChronicleStudyApi;
 import com.openlattice.client.RetrofitFactory;
 import com.openlattice.data.DataApi;
 import com.openlattice.data.DataEdge;
@@ -109,6 +111,8 @@ public class MultipleAuthenticatedUsersBase extends SetupEnvironment {
     protected static AnalysisApi analysisApi;
     protected static LinkingFeedbackApi linkingFeedbackApi;
     protected static PrincipalApi principalApi;
+    protected static ChronicleApi chronicleApi;
+    protected static ChronicleStudyApi chronicleStudyApi;
 
     protected static OkHttpClient currentHttpClient;
 
@@ -138,6 +142,9 @@ public class MultipleAuthenticatedUsersBase extends SetupEnvironment {
             realtimeLinkingApi = linkerRetrofit.create( RealtimeLinkingApi.class );
             linkingFeedbackApi = linkerRetrofit.create( LinkingFeedbackApi.class );
         }
+
+        chronicleApi = currentRetrofit.create( ChronicleApi.class );
+        chronicleStudyApi = currentRetrofit.create( ChronicleStudyApi.class);
 
         currentHttpClient = httpClientMap.get( user );
     }
