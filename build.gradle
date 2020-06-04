@@ -68,15 +68,18 @@ jacoco {
 }
 
 
-dependencies { 
+ext.chronicle_api_version = '0.0.11-SNAPSHOT'
+dependencies {
     if( project.hasProperty('developmentMode') && project.developmentMode ) {
         logger.quiet(project.name + " using project dependencies.")
+        testCompile project(":chronicle-server")
         testCompile project(":conductor")
         testCompile project(":datastore")
         testCompile project(":shuttle")
         testCompile project(":launchpad")
 
         testCompile( project(path: ":api", configuration: "tests"))
+        testCompile( project(path: ":chronicle-api", configuration: "tests"))
         testCompile( project(path: ":rhizome", configuration: "tests"))
         testCompile( project(path: ":rhizome-client", configuration: "tests"))
     } else {
@@ -87,6 +90,7 @@ dependencies {
         testCompile "com.openlattice:launchpad:${launchpad_version}"
 
         testCompile "com.openlattice:api:${api_version}:tests"
+        testCompile "com.openlattice:chronicle-api:${chronicle_api_version}:tests"
         testCompile "com.openlattice:rhizome:${rhizome_version}:tests"
         testCompile "com.openlattice:rhizome-client:${rhizome_client_version}:tests"
     }

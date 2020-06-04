@@ -1,6 +1,6 @@
 package com.openlattice.rehearsal.chronicle
 
-import com.openlattice.data.DeleteType
+import com.openlattice.chronicle.data.DeleteType
 import com.openlattice.rehearsal.SetupTestData
 import org.junit.Assert
 import org.junit.Test

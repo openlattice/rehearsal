@@ -48,6 +48,12 @@ open class ChronicleTestBase : MultipleAuthenticatedUsersBase() {
         val PHONE = Pair
                 .of("com.android.dialer", "Phone")
 
+        // for data integration permissions
+        private val ORGANIZATION_ID = UUID.fromString("00000000-0000-0001-0000-000000000000")
+        private val USERS_ROLE = "OpenLattice User Role"
+        private val CHRONICLE_NAME = "chronicle_"
+
+
         var entitySetNameIdMap: Map<String, UUID> = HashMap()
         lateinit var fullNamePTID: UUID
         lateinit var durationPTID: UUID
