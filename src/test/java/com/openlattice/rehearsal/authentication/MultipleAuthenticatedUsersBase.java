@@ -39,6 +39,7 @@ import com.openlattice.chronicle.ChronicleStudyApi;
 import com.openlattice.client.RetrofitFactory;
 import com.openlattice.data.DataApi;
 import com.openlattice.data.DataEdge;
+import com.openlattice.data.DataIntegrationApi;
 import com.openlattice.data.EntityDataKey;
 import com.openlattice.directory.PrincipalApi;
 import com.openlattice.edm.EdmApi;
@@ -93,6 +94,8 @@ public class MultipleAuthenticatedUsersBase extends SetupEnvironment {
             "prod", retrofitProd );
     private static final Map<String, Retrofit> linkerRetrofitMap = ImmutableMap.of(
             "admin", retrofitLinker );
+    private static final Map<String, Retrofit> chronicleRetrofitMap = ImmutableMap.of(
+            "admin", retrofitChronicle );
     private static final Map<String, OkHttpClient> httpClientMap = ImmutableMap.of(
             "admin", httpClient,
             "user1", httpClient1,
@@ -103,16 +106,17 @@ public class MultipleAuthenticatedUsersBase extends SetupEnvironment {
     protected static PermissionsApi permissionsApi;
     protected static AuthorizationsApi authorizationsApi;
     protected static RequestsApi requestsApi;
-    protected static DataApi dataApi;
-    protected static SearchApi searchApi;
-    protected static OrganizationsApi organizationsApi;
-    protected static EntitySetsApi entitySetsApi;
+    protected static DataApi            dataApi;
+    protected static SearchApi          searchApi;
+    protected static OrganizationsApi   organizationsApi;
+    protected static EntitySetsApi      entitySetsApi;
     protected static RealtimeLinkingApi realtimeLinkingApi;
-    protected static AnalysisApi analysisApi;
+    protected static AnalysisApi        analysisApi;
     protected static LinkingFeedbackApi linkingFeedbackApi;
-    protected static PrincipalApi principalApi;
-    protected static ChronicleApi chronicleApi;
-    protected static ChronicleStudyApi chronicleStudyApi;
+    protected static PrincipalApi       principalApi;
+    protected static ChronicleApi       chronicleApi;
+    protected static ChronicleStudyApi  chronicleStudyApi;
+    protected static DataIntegrationApi dataIntegrationApi;
 
     protected static OkHttpClient currentHttpClient;
 
@@ -136,6 +140,7 @@ public class MultipleAuthenticatedUsersBase extends SetupEnvironment {
         entitySetsApi = currentRetrofit.create( EntitySetsApi.class );
         analysisApi = currentRetrofit.create( AnalysisApi.class );
         principalApi = currentRetrofit.create( PrincipalApi.class );
+        dataIntegrationApi = currentRetrofit.create( DataIntegrationApi.class );
 
         Retrofit linkerRetrofit = linkerRetrofitMap.get( user );
         if ( linkerRetrofit != null ) {
@@ -143,8 +148,11 @@ public class MultipleAuthenticatedUsersBase extends SetupEnvironment {
             linkingFeedbackApi = linkerRetrofit.create( LinkingFeedbackApi.class );
         }
 
-        chronicleApi = currentRetrofit.create( ChronicleApi.class );
-        chronicleStudyApi = currentRetrofit.create( ChronicleStudyApi.class);
+        Retrofit chronicleRetrofit = chronicleRetrofitMap.get( user );
+        if ( chronicleRetrofit != null ) {
+            chronicleApi = chronicleRetrofit.create( ChronicleApi.class );
+            chronicleStudyApi = chronicleRetrofit.create( ChronicleStudyApi.class );
+        }
 
         currentHttpClient = httpClientMap.get( user );
     }

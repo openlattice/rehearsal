@@ -1,0 +1,252 @@
+organizationId: 00000000-0000-0001-0000-000000000000
+entityDefinitions:
+  application_data:
+    name: application_data
+    entitySetName: "chronicle_app_data"
+    fqn: ol.applicationdata
+    propertyDefinitions:
+      ol.timezone:
+        type: ol.timezone
+        column: application_data_tz
+      ol.recordtype:
+        type: ol.recordtype
+        column: application_data_recordtype
+      ol.title:
+        type: ol.title
+        column: application_data_title
+      ol.datelogged:
+        type: ol.datelogged
+        column: application_data_dt
+      general.fullname:
+        type: general.fullname
+        column: application_data_fullname
+      general.stringid:
+        type: general.stringid
+        column: application_data_id
+  
+  preprocessed_data:
+    name: preprocessed_data
+    entitySetName: "chronicle_preprocessed_app_data"
+    fqn: ol.applicationdata
+    propertyDefinitions: {}
+  
+  user_apps:
+    name: user_apps
+    entitySetName: "chronicle_user_apps"
+    fqn: ol.applicationdata
+    propertyDefinitions:
+      general.fullname:
+        type: general.fullname
+        column: user_apps_fullname
+      general.stringid:
+        type: general.stringid
+        column: user_apps_id
+
+  devices:
+    name: devices
+    entitySetName: "chronicle_device"
+    fqn: ol.device
+    propertyDefinitions:
+      vehicle.model:
+        type: vehicle.model
+        column: device_model
+      ol.version:
+        type: ol.version
+        column: device_version
+      general.stringid:
+        type: general.stringid
+        column: device_id
+  
+  studies:
+    name: studies
+    entitySetName: "chronicle_study"
+    fqn: ol.study
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: study_id
+      sharing.name:
+        type: sharing.name
+        column: study_name
+      contact.Email:
+        type: contact.Email
+        column: study_email
+      general.fullname:
+        type: general.fullname
+        column: study_fullname
+      diagnosis.Description:
+        type: diagnosis.Description
+        column: study_description
+      ol.version:
+        type: ol.version
+        column: study_version
+    updateType: PartialReplace
+  
+  participants0:
+    name: participants0
+    entitySetName: "chronicle_participants_3e18b5e0-8e02-4323-aba1-b8eeb3e1892b"
+    fqn: general.person
+    propertyDefinitions:
+      nc.SubjectIdentification:
+        type: nc.SubjectIdentification
+        column: user_0
+  
+  participants1:
+    name: participants1
+    entitySetName: "chronicle_participants_220cdfe3-481b-4e4f-be4d-e5dace764ef8"
+    fqn: general.person
+    propertyDefinitions:
+      nc.SubjectIdentification:
+        type: nc.SubjectIdentification
+        column: user_1
+          
+  participants2:
+    name: participants2
+    entitySetName: "chronicle_participants_3c4dc95e-94b7-4b92-8f01-7cfff90ba0e0"
+    fqn: general.person
+    propertyDefinitions:
+      nc.SubjectIdentification:
+        type: nc.SubjectIdentification
+        column: user_2
+
+associationDefinitions:
+  app_data_recorded_by_participants_0:
+    fqn: ol.recordedby
+    entitySetName: chronicle_recorded_by
+    src: application_data
+    dst: participants0
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: app_to_participants_id
+  app_data_recorded_by_participants_1:
+    fqn: ol.recordedby
+    entitySetName: chronicle_recorded_by
+    src: application_data
+    dst: participants1
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: app_to_participants_id
+  app_data_recorded_by_participants_2:
+    fqn: ol.recordedby
+    entitySetName: chronicle_recorded_by
+    src: application_data
+    dst: participants2
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: app_to_participants_id
+          
+  participants0_participated_in_study:
+    fqn: general.participatedin
+    entitySetName: chronicle_participated_in
+    src: participants0
+    dst: studies
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: study_to_participants_id
+  participants1_participated_in_study:
+    fqn: general.participatedin
+    entitySetName: chronicle_participated_in
+    src: participants1
+    dst: studies
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: study_to_participants_id
+  participants2_participated_in_study:
+    fqn: general.participatedin
+    entitySetName: chronicle_participated_in
+    src: participants2
+    dst: studies
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: study_to_participants_id
+
+  app_data_recorded_by_device:
+    fqn: ol.recordedby
+    entitySetName: chronicle_recorded_by
+    src: application_data
+    dst: devices
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: app_to_device_id
+  
+  device_used_by_participants0:
+    fqn: ol.usedby
+    entitySetName: chronicle_used_by
+    dst: participants0
+    src: devices
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: device_to_user_id
+  device_used_by_participants1:
+    fqn: ol.usedby
+    entitySetName: chronicle_used_by
+    dst: participants1
+    src: devices
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: device_to_user_id
+  device_used_by_participants2:
+    fqn: ol.usedby
+    entitySetName: chronicle_used_by
+    dst: participants2
+    src: devices
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: device_to_user_id  
+  device_used_by_study:
+    fqn: ol.usedby
+    entitySetName: chronicle_used_by
+    src: devices
+    dst: studies
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: device_to_study_id
+  
+  user_apps_used_by_participants0:
+    fqn: ol.usedby
+    entitySetName: chronicle_used_by
+    dst: participants0
+    src: user_apps
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: user_apps_to_user_id
+  user_apps_used_by_participants1:
+    fqn: ol.usedby
+    entitySetName: chronicle_used_by
+    dst: participants1
+    src: user_apps
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: user_apps_to_user_id
+  user_apps_used_by_participants2:
+    fqn: ol.usedby
+    entitySetName: chronicle_used_by
+    dst: participants2
+    src: user_apps
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: user_apps_to_user_id
+  
+  user_apps_recorded_by_device:
+    fqn: ol.recordedby
+    entitySetName: chronicle_recorded_by
+    src: user_apps
+    dst: devices
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: user_apps_to_device_id
