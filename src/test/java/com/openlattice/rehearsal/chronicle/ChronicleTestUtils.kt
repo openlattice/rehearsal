@@ -1,7 +1,10 @@
 package com.openlattice.rehearsal.chronicle
 
-import java.util.HashSet
-import java.util.Random
+import com.google.common.collect.HashMultimap
+import com.google.common.collect.SetMultimap
+import org.apache.commons.lang3.tuple.Pair
+import java.time.OffsetDateTime
+import java.util.*
 
 /**
  * @author alfoncenzioka &lt;alfonce@openlattice.com&gt;
@@ -24,4 +27,15 @@ object ChronicleTestUtils {
         }
         return result
     }
+
+    fun createDateTime(day: Int, month: Int, hour: Int, minute: Int): OffsetDateTime {
+        return OffsetDateTime
+                .now()
+                .withMinute(minute)
+                .withHour(hour)
+                .withMonth(month)
+                .withDayOfMonth(day)
+    }
+
+
 }

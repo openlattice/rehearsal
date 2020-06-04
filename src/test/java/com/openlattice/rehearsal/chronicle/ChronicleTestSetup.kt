@@ -9,15 +9,20 @@ import java.util.*
 class ChronicleTestSetup : MultipleAuthenticatedUsersBase() {
     /**
      * This class contains functionality to set up a complete local version
-     * of the necessary data sets for Chronicle.
+     * of the necessary data sets for Chronicle, and should be run before
+     * booting chronicle server.
      *
      * This contains an integration from flat files, that allow:
      * (1) running ChronicleServer
      * (2) running ChronicleServerTests
      *
-     * If the entity sets already exist locally, then permission should be granted
-     * to the OpenLattice User Role to the entitysets (as in setPermissions)
-     * to allow these tests to access the entity sets.
+     * If the entity sets already exist locally:
+     * - the code below will not work (i.e. nobody will get permissions on existing data)
+     * - the tests won't work
+     *
+     * To make the test work with existing entity sets, then permissions should be granted
+     * to all users (the OpenLattice User Role), so that the test users can access
+     * the necessary data.
      */
 
     companion object {

@@ -52,8 +52,8 @@ private const val numberOfEntries = 10
 class DataControllerLinkingTest : SetupTestData() {
     companion object {
         private val importedEntitySets = mapOf(
-                "SocratesTestC" to Pair("socratesC.yaml", "emptyTestData.csv"),
-                "SocratesTestD" to Pair("socratesD.yaml", "emptyTestData.csv")
+                "SocratesTestC" to Pair("socratesC.yaml", "testdata1.csv"),
+                "SocratesTestD" to Pair("socratesD.yaml", "testdata2.csv")
         )
 
         lateinit var personEt: EntityType

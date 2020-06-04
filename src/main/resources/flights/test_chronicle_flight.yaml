@@ -29,7 +29,31 @@ entityDefinitions:
     entitySetName: "chronicle_preprocessed_app_data"
     fqn: ol.applicationdata
     propertyDefinitions: {}
-  
+
+  questions:
+    name: questions
+    entitySetName: "chronicle_questions"
+    fqn: ol.question
+    propertyDefinitions: {}
+
+  answers:
+    name: answers
+    entitySetName: "chronicle_answers"
+    fqn: ol.answer
+    propertyDefinitions: {}
+
+  questionnaires:
+    name: questionnaires
+    entitySetName: "chronicle_questionnaires"
+    fqn: ol.survey
+    propertyDefinitions: {}
+
+  notifications:
+    name: notifications
+    entitySetName: "chronicle_notifications"
+    fqn: ol.survey
+    propertyDefinitions: {}
+
   user_apps:
     name: user_apps
     entitySetName: "chronicle_user_apps"
@@ -250,3 +274,24 @@ associationDefinitions:
       general.stringid:
         type: general.stringid
         column: user_apps_to_device_id
+
+  addresses:
+    fqn: ol.addresses
+    entitySetName: chronicle_addresses
+    src: answers
+    dst: questions
+    propertyDefinitions: {}
+
+  respondswith:
+    fqn: ol.respondswith
+    entitySetName: chronicle_respondswith
+    src: participants0
+    dst: answers
+    propertyDefinitions: {}
+
+  partof:
+    fqn: ol.partof
+    entitySetName: chronicle_partof
+    src: notifications
+    dst: studies
+    propertyDefinitions: {}
