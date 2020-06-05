@@ -78,9 +78,9 @@ class ChronicleTestMobile : ChronicleTestBase() {
         chronicleApi!!.upload(STUDY_ID, PARTICIPANT3, DEVICE3, data)
 
         // only 1 entry will be written to chronicle_user_apps and related associations
-        val neighbors = getParticipantNeighbors(participant3EntityKeyId!!, STUDY_ID)
+        val neighbors = getParticipantNeighbors(participant3EntityKeyId, STUDY_ID)
         Assert.assertEquals(1, neighbors.size.toLong())
-        Assert.assertEquals(1, getDeviceNeighbors(device3EntityKeyId!!).size.toLong())
+        Assert.assertEquals(1, getDeviceNeighbors(device3EntityKeyId).size.toLong())
     }
 
     @Test
@@ -102,8 +102,8 @@ class ChronicleTestMobile : ChronicleTestBase() {
 
         chronicleApi!!.upload(STUDY_ID, PARTICIPANT3, DEVICE3, data)
 
-        Assert.assertEquals(1, getParticipantNeighbors(participant3EntityKeyId!!, STUDY_ID).size.toLong())
-        Assert.assertEquals(1, getDeviceNeighbors(device3EntityKeyId!!).size.toLong())
+        Assert.assertEquals(1, getParticipantNeighbors(participant3EntityKeyId, STUDY_ID).size.toLong())
+        Assert.assertEquals(1, getDeviceNeighbors(device3EntityKeyId).size.toLong())
     }
 
     @Test
@@ -135,10 +135,10 @@ class ChronicleTestMobile : ChronicleTestBase() {
 
         chronicleApi!!.upload(STUDY_ID, PARTICIPANT1, DEVICE1, data)
 
-        val participantNeighbors = getParticipantNeighbors(participant1EntityKeyId!!, STUDY_ID)
+        val participantNeighbors = getParticipantNeighbors(participant1EntityKeyId, STUDY_ID)
         Assert.assertEquals(2, participantNeighbors.size.toLong())
 
-        val deviceNeighbors = getDeviceNeighbors(device1EntityKeyId!!)
+        val deviceNeighbors = getDeviceNeighbors(device1EntityKeyId)
         Assert.assertEquals(2, deviceNeighbors.size.toLong())
     }
 
@@ -160,8 +160,8 @@ class ChronicleTestMobile : ChronicleTestBase() {
 
         }
         chronicleApi!!.upload(STUDY_ID, PARTICIPANT1, DEVICE1, data)
-        Assert.assertEquals(0, getParticipantNeighbors(participant3EntityKeyId!!, STUDY_ID).size.toLong())
-        Assert.assertEquals(0, getDeviceNeighbors(device3EntityKeyId!!).size.toLong())
+        Assert.assertEquals(0, getParticipantNeighbors(participant3EntityKeyId, STUDY_ID).size.toLong())
+        Assert.assertEquals(0, getDeviceNeighbors(device3EntityKeyId).size.toLong())
 
     }
 
@@ -170,12 +170,12 @@ class ChronicleTestMobile : ChronicleTestBase() {
         // a participant must be enrolled for data to be logged
         // experiment: un_enroll participant, then try logging data
 
-        val enrollment = getEnrolledEntity(participant2EntityKeyId!!, STUDY_ID)
+        val enrollment = getEnrolledEntity(participant2EntityKeyId, STUDY_ID)
         if (enrollment.size != 1) {
             throw IllegalArgumentException("There are multiple associations between $PARTICIPANT2 and $STUDY_ID")
         }
         val unEnrollmentEntityKeyId = UUID.fromString(enrollment.get(0).associationDetails.get(com.openlattice.edm.EdmConstants.ID_FQN)!!.toSet().first().toString())
-        val unEnrollmentEntity = mapOf(unEnrollmentEntityKeyId to mapOf(statusPTID!! to setOf(ParticipationStatus.NOT_ENROLLED)))
+        val unEnrollmentEntity = mapOf(unEnrollmentEntityKeyId to mapOf(statusPTID to setOf(ParticipationStatus.NOT_ENROLLED)))
         dataApi!!.updateEntitiesInEntitySet(enrollment.get(0).associationEntitySet.id, unEnrollmentEntity, UpdateType.PartialReplace)
 
 
@@ -219,7 +219,7 @@ class ChronicleTestMobile : ChronicleTestBase() {
 
         chronicleApi!!.upload(STUDY_ID, PARTICIPANT1, DEVICE1, data)
 
-        Assert.assertEquals(2, getParticipantNeighbors(participant1EntityKeyId!!, STUDY_ID).size.toLong())
+        Assert.assertEquals(2, getParticipantNeighbors(participant1EntityKeyId, STUDY_ID).size.toLong())
     }
 
 
@@ -267,7 +267,7 @@ class ChronicleTestMobile : ChronicleTestBase() {
 
         val userTypes = listOf("child", "parent", "parent_and_child")
         associations
-                .map { (k, v) -> v.toMutableMap() }
+                .map { k -> k.value.toMutableMap() }
                 .forEach { entityData ->
                     entityData.remove(com.openlattice.edm.EdmConstants.ID_FQN)
                     val users = ChronicleTestUtils.getRandomElements(userTypes)
@@ -283,9 +283,14 @@ class ChronicleTestMobile : ChronicleTestBase() {
         updateResult.forEach { associationId, entityData ->
             Assert.assertEquals(entityData.getOrDefault(EdmConstants.USER_FQN, setOf()),
                     associations[associationId]!!.getOrDefault(EdmConstants.USER_FQN, setOf()))
-            Assert.assertEquals(entityData[EdmConstants.DATETIME_FQN].toString(),
-                    associations[associationId]!![EdmConstants.DATETIME_FQN].toString())
+            Assert.assertEquals(entityData[EdmConstants.DATE_TIME_FQN].toString(),
+                    associations[associationId]!![EdmConstants.DATE_TIME_FQN].toString())
         }
+    }
+
+    @Test
+    fun testUpload() {
+        chronicleStudyApi.submitQuestionnaire(STUDY_ID, PARTICIPANT1, mapOf() )
     }
 
 
