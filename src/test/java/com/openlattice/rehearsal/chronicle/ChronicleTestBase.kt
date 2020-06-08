@@ -23,15 +23,15 @@ open class ChronicleTestBase : MultipleAuthenticatedUsersBase() {
     companion object {
 
         // EDM Constants
-        val AUDIT_ENTITY_TYPE_FQN = FullQualifiedName("ol.audit")
+        private val AUDIT_ENTITY_TYPE_FQN = FullQualifiedName("ol.audit")
 
         // data sent from devices
-        val PARTICIPANT1 = "OL_001"
-        val DEVICE1 = "fca44ee4bb3a3d03_0_0"
-        val PARTICIPANT2 = "OL_002"
-        val DEVICE2 = "fca44ee4bb3a3d03_0_1"
-        val PARTICIPANT3 = "OL_003"
-        val DEVICE3 = "fca44ee4bb3a3d03_0_2"
+        const val PARTICIPANT1 = "OL_001"
+        const val DEVICE1 = "fca44ee4bb3a3d03_0_0"
+        const val PARTICIPANT2 = "OL_002"
+        const val DEVICE2 = "fca44ee4bb3a3d03_0_1"
+        const val PARTICIPANT3 = "OL_003"
+        const val DEVICE3 = "fca44ee4bb3a3d03_0_2"
         val STUDY_ID = UUID.fromString("3e18b5e0-8e02-4323-aba1-b8eeb3e1892b")
 
         // test app data
@@ -48,32 +48,26 @@ open class ChronicleTestBase : MultipleAuthenticatedUsersBase() {
         val PHONE = Pair
                 .of("com.android.dialer", "Phone")
 
-        // for data integration permissions
-        private val ORGANIZATION_ID = UUID.fromString("00000000-0000-0001-0000-000000000000")
-        private val USERS_ROLE = "OpenLattice User Role"
-        private val CHRONICLE_NAME = "chronicle_"
-
-
         var entitySetNameIdMap: Map<String, UUID> = HashMap()
-        lateinit var fullNamePTID: UUID
-        lateinit var durationPTID: UUID
-        lateinit var titlePTID: UUID
-        lateinit var startDateTimePTID: UUID
-        lateinit var dateLoggedPTID: UUID
-        lateinit var recordTypePTID: UUID
-        lateinit var subjectIdPTID: UUID
-        lateinit var statusPTID: UUID
-        lateinit var olIdPTID: UUID
-        lateinit var participantEntityType: EntityType
-        lateinit var auditEntityTypeId: UUID
+        private lateinit var fullNamePTID: UUID
+        private lateinit var durationPTID: UUID
+        private lateinit var titlePTID: UUID
+        private lateinit var startDateTimePTID: UUID
+        private lateinit var dateLoggedPTID: UUID
+        private lateinit var recordTypePTID: UUID
+        private lateinit var subjectIdPTID: UUID
+        private lateinit var statusPTID: UUID
+        private lateinit var olIdPTID: UUID
+        private lateinit var participantEntityType: EntityType
+        private lateinit var auditEntityTypeId: UUID
 
-        lateinit var participant1EntityKeyId: UUID
-        lateinit var participant2EntityKeyId: UUID
-        lateinit var participant3EntityKeyId: UUID
+        private lateinit var participant1EntityKeyId: UUID
+        private lateinit var participant2EntityKeyId: UUID
+        private lateinit var participant3EntityKeyId: UUID
 
-        lateinit var device1EntityKeyId: UUID
-        lateinit var device2EntityKeyId: UUID
-        lateinit var device3EntityKeyId: UUID
+        private lateinit var device1EntityKeyId: UUID
+        private lateinit var device2EntityKeyId: UUID
+        private lateinit var device3EntityKeyId: UUID
 
         @JvmStatic
         @BeforeClass
@@ -86,13 +80,13 @@ open class ChronicleTestBase : MultipleAuthenticatedUsersBase() {
 
         fun deleteEntities() {
             val entitySetsIds = HashSet<UUID>()
-            entitySetsIds.add(entitySetNameIdMap[CHRONICLE_USER_APPS]!!)
+            entitySetsIds.add(entitySetNameIdMap.getValue(CHRONICLE_USER_APPS))
             for (entitySetId in entitySetsIds) {
                 dataApi!!.deleteAllEntitiesFromEntitySet(entitySetId, DeleteType.Hard)
             }
         }
 
-        fun getEntityKeyIds(entitySetId: UUID, key: UUID, entityKey: String): UUID {
+        private fun getEntityKeyIds(entitySetId: UUID, key: UUID, entityKey: String): UUID {
             return dataIntegrationApi.getEntityKeyIds(setOf(
                     EntityKey(
                             entitySetId,
@@ -103,13 +97,13 @@ open class ChronicleTestBase : MultipleAuthenticatedUsersBase() {
         private fun getDataVariables() {
             val participantEntitySetId = entitySetsApi.getEntitySetId(PARTICIPANTS_PREFIX + STUDY_ID)
 
-            participant1EntityKeyId = getEntityKeyIds(participantEntitySetId, subjectIdPTID!!, PARTICIPANT1)
-            participant2EntityKeyId = getEntityKeyIds(participantEntitySetId, subjectIdPTID!!, PARTICIPANT2)
-            participant3EntityKeyId = getEntityKeyIds(participantEntitySetId, subjectIdPTID!!, PARTICIPANT3)
+            participant1EntityKeyId = getEntityKeyIds(participantEntitySetId, subjectIdPTID, PARTICIPANT1)
+            participant2EntityKeyId = getEntityKeyIds(participantEntitySetId, subjectIdPTID, PARTICIPANT2)
+            participant3EntityKeyId = getEntityKeyIds(participantEntitySetId, subjectIdPTID, PARTICIPANT3)
 
-            device1EntityKeyId = getEntityKeyIds(entitySetNameIdMap[DEVICES_ENTITY_SET_NAME]!!, olIdPTID!!, DEVICE1)
-            device2EntityKeyId = getEntityKeyIds(entitySetNameIdMap[DEVICES_ENTITY_SET_NAME]!!, olIdPTID!!, DEVICE2)
-            device3EntityKeyId = getEntityKeyIds(entitySetNameIdMap[DEVICES_ENTITY_SET_NAME]!!, olIdPTID!!, DEVICE3)
+            device1EntityKeyId = getEntityKeyIds(entitySetNameIdMap.getValue(DEVICES_ENTITY_SET_NAME), olIdPTID, DEVICE1)
+            device2EntityKeyId = getEntityKeyIds(entitySetNameIdMap.getValue(DEVICES_ENTITY_SET_NAME), olIdPTID, DEVICE2)
+            device3EntityKeyId = getEntityKeyIds(entitySetNameIdMap.getValue(DEVICES_ENTITY_SET_NAME), olIdPTID, DEVICE3)
 
         }
 
@@ -155,29 +149,29 @@ open class ChronicleTestBase : MultipleAuthenticatedUsersBase() {
         }
 
         fun getParticipantCounts(): MutableMap<UUID, MutableMap<String, Int>> {
-            var studies = dataApi
-                    .loadEntitySetData(entitySetNameIdMap[STUDY_ENTITY_SET_NAME]!!, FileType.json, null)
+            val studies = dataApi
+                    .loadEntitySetData(entitySetNameIdMap.getValue(STUDY_ENTITY_SET_NAME), FileType.json, null)
                     .map { studyEntity ->
-                        var studyId = UUID.fromString(studyEntity.get(GENERAL_ID_FQN)!!.first().toString())
-                        var studyEntitySetId = entitySetsApi.getEntitySetId("${PARTICIPANTS_PREFIX}$studyId")
-                        var participants = dataApi
+                        val studyId = UUID.fromString(studyEntity.get(GENERAL_ID_FQN)!!.first().toString())
+                        val studyEntitySetId = entitySetsApi.getEntitySetId("$PARTICIPANTS_PREFIX$studyId")
+                        val participants = dataApi
                                 .loadEntitySetData(studyEntitySetId, FileType.json, null)
                                 .map { entity -> UUID.fromString(entity.get(ID_FQN).first().toString()) to entity.get(PERSON_ID_FQN).first() }
                                 .toMap()
-                        var neighbors = searchApi
+                        val neighbors = searchApi
                                 .executeEntityNeighborSearchBulk(studyEntitySetId, participants.keys)
                                 .map { (k, v) ->
-                                    k to v.filter { k -> k.neighborEntitySet.get().entityTypeId != auditEntityTypeId }
+                                    k to v.filter { it.neighborEntitySet.get().entityTypeId != auditEntityTypeId }
                                 }.toMap().toMutableMap()
-                        var neighborSizes = neighbors.map { (personEntityKeyId, neighbors) ->
+                        val neighborSizes = neighbors.map { (personEntityKeyId, neighbors) ->
                             participants
-                                    .get(personEntityKeyId)!!
+                                    .getValue(personEntityKeyId)
                                     .toString() to neighbors.size
                         }.toMap().toMutableMap()
                         studyId to neighborSizes
-                    }.toMap().toMutableMap();
+                    }.toMap().toMutableMap()
 
-            return studies;
+            return studies
         }
 
 

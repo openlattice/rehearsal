@@ -1,8 +1,5 @@
 package com.openlattice.rehearsal.chronicle
 
-import com.google.common.collect.HashMultimap
-import com.google.common.collect.SetMultimap
-import org.apache.commons.lang3.tuple.Pair
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -11,7 +8,7 @@ import java.util.*
  */
 object ChronicleTestUtils {
 
-    fun getRandomElement(userTypes: List<String>): String {
+    private fun getRandomElement(userTypes: List<String>): String {
         val random = Random()
         return userTypes[random.nextInt(userTypes.size)]
     }

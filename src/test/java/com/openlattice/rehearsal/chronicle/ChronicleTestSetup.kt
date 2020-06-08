@@ -27,8 +27,8 @@ class ChronicleTestSetup : MultipleAuthenticatedUsersBase() {
 
     companion object {
         private val ORGANIZATION_ID = UUID.fromString("00000000-0000-0001-0000-000000000000")
-        private val USERS_ROLE = "OpenLattice User Role"
-        private val CHRONICLE_NAME = "chronicle_"
+        private const val USERS_ROLE = "OpenLattice User Role"
+        private const val CHRONICLE_NAME = "chronicle_"
     }
 
     @Test
@@ -37,7 +37,7 @@ class ChronicleTestSetup : MultipleAuthenticatedUsersBase() {
          * Integrate test data through shuttle.
          */
         loginAs("admin")
-        SetupTestData.importDataSet("test_chronicle_empty_flight.yaml","test_chronicle_data.csv")
+        SetupTestData.importDataSet("test_chronicle_empty_flight.yaml", "test_chronicle_data.csv")
         SetupTestData.importDataSet("test_chronicle_dict_flight.yaml", "test_chronicle_dict_data.csv")
     }
 
@@ -48,23 +48,23 @@ class ChronicleTestSetup : MultipleAuthenticatedUsersBase() {
          */
         val rolePrincipal = organizationsApi
                 .getRoles(ORGANIZATION_ID)
-                .filter {x -> x.title.equals(USERS_ROLE)}
+                .filter { it.title == USERS_ROLE }
                 .first()
                 .principal
         val ace = Ace(rolePrincipal, EnumSet.of(Permission.OWNER, Permission.READ, Permission.WRITE))
 
         entitySetsApi.getEntitySets()
-                .filter {x -> x.name.contains(CHRONICLE_NAME)}
-                .forEach{ x ->
-                    val entityType = edmApi.getEntityType(x.entityTypeId)
+                .filter { it.name.contains(CHRONICLE_NAME) }
+                .forEach {
+                    val entityType = edmApi.getEntityType(it.entityTypeId)
                     entityType.properties
-                            .forEach { k ->
+                            .forEach { prop ->
                                 val aclData = AclData(
-                                        Acl(listOf(x.id, k), listOf(ace)), Action.ADD);
+                                        Acl(listOf(it.id, prop), listOf(ace)), Action.ADD)
                                 permissionsApi.updateAcl(aclData)
                             }
                     val aclData = AclData(
-                            Acl(listOf(x.id), listOf(ace)), Action.ADD);
+                            Acl(listOf(it.id), listOf(ace)), Action.ADD)
                     permissionsApi.updateAcl(aclData)
                 }
 
