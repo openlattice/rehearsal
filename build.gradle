@@ -68,7 +68,6 @@ jacoco {
 }
 
 
-ext.chronicle_api_version = '0.0.11-SNAPSHOT'
 dependencies {
     if( project.hasProperty('developmentMode') && project.developmentMode ) {
         logger.quiet(project.name + " using project dependencies.")
