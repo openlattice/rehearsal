@@ -14,7 +14,7 @@ class ChronicleTestWeb : ChronicleTestBase() {
 
         // count neighbors
         val countsAll = ChronicleTestBase.getParticipantCounts()
-        chronicleStudyApi!!.deleteParticipantAndAllNeighbors(STUDY_ID, PARTICIPANT1, DeleteType.Soft)
+        chronicleStudyApi.deleteParticipantAndAllNeighbors(STUDY_ID, PARTICIPANT1, DeleteType.Soft)
         val countsOneDown = ChronicleTestBase.getParticipantCounts()
 
         // the number of neighbors should be the same for all participants, except the one deleted

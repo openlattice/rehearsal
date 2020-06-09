@@ -49,25 +49,25 @@ open class ChronicleTestBase : MultipleAuthenticatedUsersBase() {
                 .of("com.android.dialer", "Phone")
 
         var entitySetNameIdMap: Map<String, UUID> = HashMap()
-        private lateinit var fullNamePTID: UUID
-        private lateinit var durationPTID: UUID
-        private lateinit var titlePTID: UUID
-        private lateinit var startDateTimePTID: UUID
-        private lateinit var dateLoggedPTID: UUID
-        private lateinit var recordTypePTID: UUID
-        private lateinit var subjectIdPTID: UUID
-        private lateinit var statusPTID: UUID
-        private lateinit var olIdPTID: UUID
-        private lateinit var participantEntityType: EntityType
-        private lateinit var auditEntityTypeId: UUID
+        lateinit var fullNamePTID: UUID
+        lateinit var durationPTID: UUID
+        lateinit var titlePTID: UUID
+        lateinit var startDateTimePTID: UUID
+        lateinit var dateLoggedPTID: UUID
+        lateinit var recordTypePTID: UUID
+        lateinit var subjectIdPTID: UUID
+        lateinit var statusPTID: UUID
+        lateinit var olIdPTID: UUID
+        lateinit var participantEntityType: EntityType
+        lateinit var auditEntityTypeId: UUID
 
-        private lateinit var participant1EntityKeyId: UUID
-        private lateinit var participant2EntityKeyId: UUID
-        private lateinit var participant3EntityKeyId: UUID
+        lateinit var participant1EntityKeyId: UUID
+        lateinit var participant2EntityKeyId: UUID
+        lateinit var participant3EntityKeyId: UUID
 
-        private lateinit var device1EntityKeyId: UUID
-        private lateinit var device2EntityKeyId: UUID
-        private lateinit var device3EntityKeyId: UUID
+        lateinit var device1EntityKeyId: UUID
+        lateinit var device2EntityKeyId: UUID
+        lateinit var device3EntityKeyId: UUID
 
         @JvmStatic
         @BeforeClass

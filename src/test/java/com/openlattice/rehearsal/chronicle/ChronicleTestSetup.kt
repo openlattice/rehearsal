@@ -26,9 +26,9 @@ class ChronicleTestSetup : MultipleAuthenticatedUsersBase() {
      */
 
     companion object {
-        private val ORGANIZATION_ID = UUID.fromString("00000000-0000-0001-0000-000000000000")
-        private const val USERS_ROLE = "OpenLattice User Role"
-        private const val CHRONICLE_NAME = "chronicle_"
+        val ORGANIZATION_ID = UUID.fromString("00000000-0000-0001-0000-000000000000")
+        const val USERS_ROLE = "OpenLattice User Role"
+        const val CHRONICLE_NAME = "chronicle_"
     }
 
     @Test
