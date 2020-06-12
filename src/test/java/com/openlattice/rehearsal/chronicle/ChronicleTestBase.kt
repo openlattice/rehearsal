@@ -152,7 +152,7 @@ open class ChronicleTestBase : MultipleAuthenticatedUsersBase() {
             val studies = dataApi
                     .loadEntitySetData(entitySetNameIdMap.getValue(STUDY_ENTITY_SET_NAME), FileType.json, null)
                     .map { studyEntity ->
-                        val studyId = UUID.fromString(studyEntity.get(GENERAL_ID_FQN)!!.first().toString())
+                        val studyId = UUID.fromString(studyEntity.get(STRING_ID_FQN)!!.first().toString())
                         val studyEntitySetId = entitySetsApi.getEntitySetId("$PARTICIPANTS_PREFIX$studyId")
                         val participants = dataApi
                                 .loadEntitySetData(studyEntitySetId, FileType.json, null)
