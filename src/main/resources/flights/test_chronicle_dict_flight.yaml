@@ -14,3 +14,4 @@ entityDefinitions:
       general.stringid:
         type: general.stringid
         column: id
+    updateType: PartialReplace

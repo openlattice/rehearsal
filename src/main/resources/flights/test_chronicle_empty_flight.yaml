@@ -109,6 +109,12 @@ entityDefinitions:
         type: nc.SubjectIdentification
         column: user_2
 
+  metadata:
+    name: metadata
+    entitySetName: "chronicle_metadata"
+    fqn: ol.surveymetadata
+    propertyDefinitions: {}
+
 associationDefinitions:
   app_data_recorded_by_participants_0:
     fqn: ol.recordedby
@@ -270,4 +276,11 @@ associationDefinitions:
     entitySetName: chronicle_partof
     src: notifications
     dst: studies
+    propertyDefinitions: {}
+
+  has:
+    fqn: ol.has
+    entitySetName: chronicle_has
+    src: participants0
+    dst: metadata
     propertyDefinitions: {}

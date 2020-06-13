@@ -39,6 +39,7 @@ class ChronicleTestSetup : MultipleAuthenticatedUsersBase() {
         loginAs("admin")
         SetupTestData.importDataSet("test_chronicle_empty_flight.yaml", "test_chronicle_data.csv")
         SetupTestData.importDataSet("test_chronicle_dict_flight.yaml", "test_chronicle_dict_data.csv")
+        SetupTestData.importDataSet("test_chronicle_notification_flight.yaml", "test_chronicle_notification_data.csv")
     }
 
     @Test

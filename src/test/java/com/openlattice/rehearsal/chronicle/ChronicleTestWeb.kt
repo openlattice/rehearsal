@@ -14,17 +14,17 @@ class ChronicleTestWeb : ChronicleTestBase() {
 
         // count neighbors
         val countsAll = ChronicleTestBase.getParticipantCounts()
-        chronicleStudyApi.deleteParticipantAndAllNeighbors(STUDY_ID, PARTICIPANT1, DeleteType.Soft)
+        chronicleStudyApi.deleteParticipantAndAllNeighbors(STUDY_ID2, PARTICIPANT1, DeleteType.Soft)
         val countsOneDown = ChronicleTestBase.getParticipantCounts()
 
         // the number of neighbors should be the same for all participants, except the one deleted
-        countsAll.getValue(ChronicleTestBase.STUDY_ID).remove((ChronicleTestBase.PARTICIPANT1))
+        countsAll.getValue(ChronicleTestBase.STUDY_ID2).remove((ChronicleTestBase.PARTICIPANT1))
         Assert.assertEquals(countsAll, countsOneDown)
 
         // the number of neighbors should be the same for all participants, except the ones in the deleted study
-        chronicleStudyApi.deleteStudyAndAllNeighbors(ChronicleTestBase.STUDY_ID, DeleteType.Soft)
+        chronicleStudyApi.deleteStudyAndAllNeighbors(ChronicleTestBase.STUDY_ID2, DeleteType.Soft)
         val countsTwoDown = ChronicleTestBase.getParticipantCounts()
-        countsAll.remove(ChronicleTestBase.STUDY_ID)
+        countsAll.remove(ChronicleTestBase.STUDY_ID2)
         Assert.assertEquals(countsAll, countsTwoDown)
 
 

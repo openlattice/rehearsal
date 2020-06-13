@@ -32,7 +32,8 @@ open class ChronicleTestBase : MultipleAuthenticatedUsersBase() {
         const val DEVICE2 = "fca44ee4bb3a3d03_0_1"
         const val PARTICIPANT3 = "OL_003"
         const val DEVICE3 = "fca44ee4bb3a3d03_0_2"
-        val STUDY_ID = UUID.fromString("3e18b5e0-8e02-4323-aba1-b8eeb3e1892b")
+        val STUDY_ID1 = UUID.fromString("3e18b5e0-8e02-4323-aba1-b8eeb3e1892b")
+        val STUDY_ID2 = UUID.fromString("3c4dc95e-94b7-4b92-8f01-7cfff90ba0e0")
 
         // test app data
         val CAMERA = Pair
@@ -95,7 +96,7 @@ open class ChronicleTestBase : MultipleAuthenticatedUsersBase() {
         }
 
         private fun getDataVariables() {
-            val participantEntitySetId = entitySetsApi.getEntitySetId(PARTICIPANTS_PREFIX + STUDY_ID)
+            val participantEntitySetId = entitySetsApi.getEntitySetId(PARTICIPANTS_PREFIX + STUDY_ID1)
 
             participant1EntityKeyId = getEntityKeyIds(participantEntitySetId, subjectIdPTID, PARTICIPANT1)
             participant2EntityKeyId = getEntityKeyIds(participantEntitySetId, subjectIdPTID, PARTICIPANT2)

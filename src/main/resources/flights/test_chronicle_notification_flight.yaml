@@ -1,0 +1,35 @@
+organizationId: 00000000-0000-0001-0000-000000000000
+entityDefinitions:
+  studies:
+    name: studies
+    entitySetName: "chronicle_study"
+    fqn: ol.study
+    propertyDefinitions:
+      general.stringid:
+        type: general.stringid
+        column: study_id
+
+  notifications:
+    name: notifications
+    entitySetName: "chronicle_notifications"
+    fqn: ol.survey
+    propertyDefinitions:
+      ol.id:
+        type: ol.id
+        column: id
+      ol.description:
+        type: ol.description
+        column: description
+
+
+associationDefinitions:
+  partof:
+    fqn: ol.partof
+    entitySetName: chronicle_partof
+    src: notifications
+    dst: studies
+    propertyDefinitions:
+      ol.id:
+        type: ol.id
+        column: study_id
+

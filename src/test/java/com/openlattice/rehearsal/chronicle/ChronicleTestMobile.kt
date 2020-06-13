@@ -37,12 +37,12 @@ class ChronicleTestMobile : ChronicleTestBase() {
             ))
         }
 
-        Assert.assertEquals(chronicleApi!!.upload(STUDY_ID, PARTICIPANT1, DEVICE1, data)!!.toInt().toLong(), testApps.size.toLong())
+        Assert.assertEquals(chronicleApi!!.upload(STUDY_ID1, PARTICIPANT1, DEVICE1, data)!!.toInt().toLong(), testApps.size.toLong())
 
         val dateToday = OffsetDateTime.now().toLocalDate().toString()
 
         val appsUsageDetails = chronicleStudyApi!!
-                .getParticipantAppsUsageData(STUDY_ID, PARTICIPANT1, dateToday)
+                .getParticipantAppsUsageData(STUDY_ID1, PARTICIPANT1, dateToday)
         Assert.assertEquals(appsUsageDetails.size.toLong(), testApps.size.toLong())
 
         // validate data
@@ -75,10 +75,10 @@ class ChronicleTestMobile : ChronicleTestBase() {
         partialEntry.removeAll(fullNamePTID)
         data.add(partialEntry)
 
-        chronicleApi!!.upload(STUDY_ID, PARTICIPANT3, DEVICE3, data)
+        chronicleApi!!.upload(STUDY_ID1, PARTICIPANT3, DEVICE3, data)
 
         // only 1 entry will be written to chronicle_user_apps and related associations
-        val neighbors = getParticipantNeighbors(participant3EntityKeyId, STUDY_ID)
+        val neighbors = getParticipantNeighbors(participant3EntityKeyId, STUDY_ID1)
         Assert.assertEquals(1, neighbors.size.toLong())
         Assert.assertEquals(1, getDeviceNeighbors(device3EntityKeyId).size.toLong())
     }
@@ -100,9 +100,9 @@ class ChronicleTestMobile : ChronicleTestBase() {
         partialEntry.put(recordTypePTID, "Move to background")
         data.add(partialEntry)
 
-        chronicleApi!!.upload(STUDY_ID, PARTICIPANT3, DEVICE3, data)
+        chronicleApi!!.upload(STUDY_ID1, PARTICIPANT3, DEVICE3, data)
 
-        Assert.assertEquals(1, getParticipantNeighbors(participant3EntityKeyId, STUDY_ID).size.toLong())
+        Assert.assertEquals(1, getParticipantNeighbors(participant3EntityKeyId, STUDY_ID1).size.toLong())
         Assert.assertEquals(1, getDeviceNeighbors(device3EntityKeyId).size.toLong())
     }
 
@@ -133,9 +133,9 @@ class ChronicleTestMobile : ChronicleTestBase() {
         anotherItem.put(fullNamePTID, YOUTUBE.left)
         data.add(anotherItem)
 
-        chronicleApi!!.upload(STUDY_ID, PARTICIPANT1, DEVICE1, data)
+        chronicleApi!!.upload(STUDY_ID1, PARTICIPANT1, DEVICE1, data)
 
-        val participantNeighbors = getParticipantNeighbors(participant1EntityKeyId, STUDY_ID)
+        val participantNeighbors = getParticipantNeighbors(participant1EntityKeyId, STUDY_ID1)
         Assert.assertEquals(2, participantNeighbors.size.toLong())
 
         val deviceNeighbors = getDeviceNeighbors(device1EntityKeyId)
@@ -159,8 +159,8 @@ class ChronicleTestMobile : ChronicleTestBase() {
             data.add(item)
 
         }
-        chronicleApi!!.upload(STUDY_ID, PARTICIPANT1, DEVICE1, data)
-        Assert.assertEquals(0, getParticipantNeighbors(participant3EntityKeyId, STUDY_ID).size.toLong())
+        chronicleApi!!.upload(STUDY_ID1, PARTICIPANT1, DEVICE1, data)
+        Assert.assertEquals(0, getParticipantNeighbors(participant3EntityKeyId, STUDY_ID1).size.toLong())
         Assert.assertEquals(0, getDeviceNeighbors(device3EntityKeyId).size.toLong())
 
     }
@@ -170,9 +170,9 @@ class ChronicleTestMobile : ChronicleTestBase() {
         // a participant must be enrolled for data to be logged
         // experiment: un_enroll participant, then try logging data
 
-        val enrollment = getEnrolledEntity(participant2EntityKeyId, STUDY_ID)
+        val enrollment = getEnrolledEntity(participant2EntityKeyId, STUDY_ID1)
         if (enrollment.size != 1) {
-            throw IllegalArgumentException("There are multiple associations between $PARTICIPANT2 and $STUDY_ID")
+            throw IllegalArgumentException("There are multiple associations between $PARTICIPANT2 and $STUDY_ID1")
         }
         val unEnrollmentEntityKeyId = UUID.fromString(enrollment.get(0).associationDetails.get(com.openlattice.edm.EdmConstants.ID_FQN)!!.toSet().first().toString())
         val unEnrollmentEntity = mapOf(unEnrollmentEntityKeyId to mapOf(statusPTID to setOf(ParticipationStatus.NOT_ENROLLED)))
@@ -188,7 +188,7 @@ class ChronicleTestMobile : ChronicleTestBase() {
         )
         data.add(item)
 
-        Assert.assertEquals(0, chronicleApi!!.upload(STUDY_ID, PARTICIPANT2, DEVICE2, data)!!.toInt().toLong())
+        Assert.assertEquals(0, chronicleApi!!.upload(STUDY_ID1, PARTICIPANT2, DEVICE2, data)!!.toInt().toLong())
     }
 
     @Test
@@ -217,9 +217,9 @@ class ChronicleTestMobile : ChronicleTestBase() {
         anotherItem.put(dateLoggedPTID, ChronicleTestUtils.createDateTime(13, 5, 2, 1).toString())
         data.add(anotherItem)
 
-        chronicleApi!!.upload(STUDY_ID, PARTICIPANT1, DEVICE1, data)
+        chronicleApi!!.upload(STUDY_ID1, PARTICIPANT1, DEVICE1, data)
 
-        Assert.assertEquals(2, getParticipantNeighbors(participant1EntityKeyId, STUDY_ID).size.toLong())
+        Assert.assertEquals(2, getParticipantNeighbors(participant1EntityKeyId, STUDY_ID1).size.toLong())
     }
 
 
@@ -259,10 +259,10 @@ class ChronicleTestMobile : ChronicleTestBase() {
             ))
         }
 
-        chronicleApi!!.upload(STUDY_ID, PARTICIPANT1, DEVICE1, data)
+        chronicleApi!!.upload(STUDY_ID1, PARTICIPANT1, DEVICE1, data)
 
         // 1: get the associations and update them with ol.user property
-        val associations = getUserAppsAssociationDetails(STUDY_ID,
+        val associations = getUserAppsAssociationDetails(STUDY_ID1,
                 PARTICIPANT1)
 
         val userTypes = listOf("child", "parent", "parent_and_child")
@@ -275,10 +275,10 @@ class ChronicleTestMobile : ChronicleTestBase() {
                 }
 
         Assert.assertEquals(associations.size.toLong(),
-                chronicleStudyApi!!.updateAppsUsageAssociationData(STUDY_ID, PARTICIPANT1, associations)!!.toInt().toLong())
+                chronicleStudyApi!!.updateAppsUsageAssociationData(STUDY_ID1, PARTICIPANT1, associations)!!.toInt().toLong())
 
         // verify that the associations were correctly updated
-        val updateResult = getUserAppsAssociationDetails(STUDY_ID,
+        val updateResult = getUserAppsAssociationDetails(STUDY_ID1,
                 PARTICIPANT1)
         updateResult.forEach { associationId, entityData ->
             Assert.assertEquals(entityData.getOrDefault(EdmConstants.USER_FQN, setOf()),
@@ -290,7 +290,7 @@ class ChronicleTestMobile : ChronicleTestBase() {
 
     @Test
     fun testUpload() {
-        chronicleStudyApi.submitQuestionnaire(STUDY_ID, PARTICIPANT1, mapOf() )
+        chronicleStudyApi.submitQuestionnaire(STUDY_ID1, PARTICIPANT1, mapOf() )
     }
 
 
