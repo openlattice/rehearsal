@@ -32,6 +32,8 @@ open class ChronicleTestBase : MultipleAuthenticatedUsersBase() {
         const val DEVICE2 = "fca44ee4bb3a3d03_0_1"
         const val PARTICIPANT3 = "OL_003"
         const val DEVICE3 = "fca44ee4bb3a3d03_0_2"
+        const val PARTICIPANT4 = "OL_004"
+        const val DEVICE4 = "fca44ee4bb3a3d03_0_3"
         val STUDY_ID1 = UUID.fromString("3e18b5e0-8e02-4323-aba1-b8eeb3e1892b")
         val STUDY_ID2 = UUID.fromString("3c4dc95e-94b7-4b92-8f01-7cfff90ba0e0")
 

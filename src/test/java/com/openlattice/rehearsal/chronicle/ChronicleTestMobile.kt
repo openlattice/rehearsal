@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultimap
 import com.google.common.collect.SetMultimap
 import com.openlattice.chronicle.constants.EdmConstants
 import com.openlattice.chronicle.data.ParticipationStatus
+import com.openlattice.chronicle.sources.AndroidDevice
 import com.openlattice.data.UpdateType
 import com.openlattice.data.requests.NeighborEntityDetails
 import com.openlattice.search.requests.EntityNeighborsFilter
@@ -60,6 +61,30 @@ class ChronicleTestMobile : ChronicleTestBase() {
     }
 
     @Test
+    fun testEnroll() {
+        var datasource = AndroidDevice(
+                DEVICE4,
+                "Moto G8",
+                "MotoCodeName",
+                "Motorola",
+                "10",
+                "28",
+                "Product",
+                DEVICE4,
+                com.google.common.base.Optional.absent()
+        )
+
+        var id = chronicleStudyApi.enrollSource(
+                STUDY_ID1,
+                PARTICIPANT4,
+                DEVICE4,
+                com.google.common.base.Optional.of(datasource)
+        )
+        Assert.assertNotNull("Returned id cannot be null.", id)
+
+    }
+
+    @Test
     fun testInCompleteData() {
         deleteEntities()
         // incomplete items (items missing required properties like 'general.fullname') shouldn't be written to chronicle_user_apps
@@ -105,6 +130,7 @@ class ChronicleTestMobile : ChronicleTestBase() {
         Assert.assertEquals(1, getParticipantNeighbors(participant3EntityKeyId, STUDY_ID1).size.toLong())
         Assert.assertEquals(1, getDeviceNeighbors(device3EntityKeyId).size.toLong())
     }
+
 
     @Test
     fun testUniquenessWrtToAppName() {
