@@ -1,0 +1,4 @@
+desiredCluster:
+  REHEARSAL: 1
+  CONDUCTOR: 1
+timeoutMillis: 0
