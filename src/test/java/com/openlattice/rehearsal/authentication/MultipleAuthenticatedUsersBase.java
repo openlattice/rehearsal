@@ -21,18 +21,10 @@
 package com.openlattice.rehearsal.authentication;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Streams;
+import com.google.common.collect.*;
 import com.openlattice.IdConstants;
 import com.openlattice.analysis.AnalysisApi;
-import com.openlattice.authorization.AccessCheck;
-import com.openlattice.authorization.AclKey;
-import com.openlattice.authorization.AuthorizationsApi;
-import com.openlattice.authorization.Permission;
-import com.openlattice.authorization.PermissionsApi;
+import com.openlattice.authorization.*;
 import com.openlattice.authorization.securable.SecurableObjectType;
 import com.openlattice.client.RetrofitFactory;
 import com.openlattice.data.DataApi;
@@ -49,30 +41,16 @@ import com.openlattice.entitysets.EntitySetsApi;
 import com.openlattice.linking.LinkingFeedbackApi;
 import com.openlattice.linking.RealtimeLinkingApi;
 import com.openlattice.mapstores.TestDataFactory;
-import com.openlattice.organizations.Organization;
+import com.openlattice.organization.DatasetApi;
 import com.openlattice.organization.OrganizationsApi;
 import com.openlattice.organization.roles.Role;
+import com.openlattice.organizations.Organization;
 import com.openlattice.postgres.IndexType;
 import com.openlattice.rehearsal.GeneralException;
 import com.openlattice.rehearsal.SetupEnvironment;
 import com.openlattice.requests.RequestsApi;
 import com.openlattice.search.SearchApi;
-
-import java.io.IOException;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import kotlin.Pair;
-
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -82,33 +60,39 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.junit.Assert;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class MultipleAuthenticatedUsersBase extends SetupEnvironment {
-    private static final Map<String, Retrofit> retrofitMap = ImmutableMap.of(
+    private static final Map<String, Retrofit>     retrofitMap       = ImmutableMap.of(
             "admin", retrofit,
             "user1", retrofit1,
             "user2", retrofit2,
             "user3", retrofit3,
             "prod", retrofitProd );
-    private static final Map<String, Retrofit> linkerRetrofitMap = ImmutableMap.of(
+    private static final Map<String, Retrofit>     linkerRetrofitMap = ImmutableMap.of(
             "admin", retrofitLinker );
-    private static final Map<String, OkHttpClient> httpClientMap = ImmutableMap.of(
+    private static final Map<String, OkHttpClient> httpClientMap     = ImmutableMap.of(
             "admin", httpClient,
             "user1", httpClient1,
             "user2", httpClient2
     );
 
-    protected static EdmApi edmApi;
-    protected static PermissionsApi permissionsApi;
-    protected static AuthorizationsApi authorizationsApi;
-    protected static RequestsApi requestsApi;
-    protected static DataApi dataApi;
-    protected static SearchApi searchApi;
-    protected static OrganizationsApi organizationsApi;
-    protected static EntitySetsApi entitySetsApi;
+    protected static EdmApi             edmApi;
+    protected static DatasetApi         datasetApi;
+    protected static PermissionsApi     permissionsApi;
+    protected static AuthorizationsApi  authorizationsApi;
+    protected static RequestsApi        requestsApi;
+    protected static DataApi            dataApi;
+    protected static SearchApi          searchApi;
+    protected static OrganizationsApi   organizationsApi;
+    protected static EntitySetsApi      entitySetsApi;
     protected static RealtimeLinkingApi realtimeLinkingApi;
-    protected static AnalysisApi analysisApi;
+    protected static AnalysisApi        analysisApi;
     protected static LinkingFeedbackApi linkingFeedbackApi;
-    protected static PrincipalApi principalApi;
+    protected static PrincipalApi       principalApi;
 
     protected static OkHttpClient currentHttpClient;
 
@@ -122,6 +106,7 @@ public class MultipleAuthenticatedUsersBase extends SetupEnvironment {
         if ( currentRetrofit == null ) {
             throw new IllegalArgumentException( "User does not exists in Retrofit map." );
         }
+        datasetApi = currentRetrofit.create( DatasetApi.class );
         edmApi = currentRetrofit.create( EdmApi.class );
         permissionsApi = currentRetrofit.create( PermissionsApi.class );
         authorizationsApi = currentRetrofit.create( AuthorizationsApi.class );
@@ -342,7 +327,7 @@ public class MultipleAuthenticatedUsersBase extends SetupEnvironment {
                 Sets.newHashSet( "foo@bar.com", "foobar@foo.net" ),
                 linkedEntitySetIds,
                 organizationId,
-                flags);
+                flags );
 
         Map<String, UUID> entitySetIds = entitySetsApi.createEntitySets( Set.of( newES ) );
 
@@ -367,7 +352,7 @@ public class MultipleAuthenticatedUsersBase extends SetupEnvironment {
                 .mapWithIndex(
                         Stream.of( srcIds.toArray() ),
                         ( data, index ) -> {
-                            int idx = ( int ) index;
+                            int idx = (int) index;
                             EntityDataKey srcDataKey = new EntityDataKey( srcEntitySetId, srcIds.get( idx ) );
                             EntityDataKey dstDataKey = new EntityDataKey( dstEntitySetId, dstIds.get( idx ) );
                             return new DataEdge( srcDataKey, dstDataKey, edgeData.get( idx ) );
@@ -376,7 +361,6 @@ public class MultipleAuthenticatedUsersBase extends SetupEnvironment {
 
         return new Pair<>( edgeEntitySetId, edges );
     }
-
 
     /**
      * Helper methods for OrganizationsApi
