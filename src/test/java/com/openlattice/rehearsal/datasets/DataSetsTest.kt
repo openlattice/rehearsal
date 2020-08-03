@@ -2,7 +2,9 @@ package com.openlattice.rehearsal.datasets
 
 import com.openlattice.organization.OrganizationIntegrationAccount
 import com.openlattice.organizations.Organization
+import com.openlattice.postgres.PostgresColumn
 import com.openlattice.rehearsal.authentication.MultipleAuthenticatedUsersBase
+import com.openlattice.rehearsal.organization.TestAssemblerConnectionManager
 import junit.framework.Assert
 import org.junit.BeforeClass
 import org.junit.Test
@@ -46,33 +48,30 @@ open class DataSetsTest : MultipleAuthenticatedUsersBase() {
         val id = 1
         val author = "Jack London"
 
-        try {
-            DriverManager.getConnection(url, credentials.user, credentials.credential).use { con ->
-                con.prepareStatement(create_query).executeUpdate()
-                con.prepareStatement(insert_query).executeUpdate()
+        val organizationDataSource = TestAssemblerConnectionManager.connect(organizationID)
+        organizationDataSource.connection.use { connection ->
+            connection.createStatement().use { stmt ->
+                stmt.executeQuery(create_query)
+                stmt.executeQuery(insert_query)
             }
-        } catch (ex: SQLException) {
-            logger.error("Couldn't create table.", ex)
         }
     }
 
     fun removeDataColumn() {
-        try {
-            DriverManager.getConnection(url, credentials.user, credentials.credential).use { con ->
-                con.prepareStatement(delete_column_query).executeUpdate()
+        val organizationDataSource = TestAssemblerConnectionManager.connect(organizationID)
+        organizationDataSource.connection.use { connection ->
+            connection.createStatement().use { stmt ->
+                stmt.executeQuery(delete_column_query)
             }
-        } catch (ex: SQLException) {
-            logger.error("Couldn't create table.", ex)
         }
     }
 
     fun removeDataTable() {
-        try {
-            DriverManager.getConnection(url, credentials.user, credentials.credential).use { con ->
-                con.prepareStatement(delete_table_query).executeUpdate()
+        val organizationDataSource = TestAssemblerConnectionManager.connect(organizationID)
+        organizationDataSource.connection.use { connection ->
+            connection.createStatement().use { stmt ->
+                stmt.executeQuery(delete_table_query)
             }
-        } catch (ex: SQLException) {
-            logger.error("Couldn't create table.", ex)
         }
     }
 
