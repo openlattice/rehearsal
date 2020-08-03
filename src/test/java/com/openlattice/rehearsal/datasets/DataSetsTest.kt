@@ -19,8 +19,10 @@ open class DataSetsTest : MultipleAuthenticatedUsersBase() {
         lateinit var url: String
 
         const val create_query = "CREATE TABLE IF NOT EXISTS " +
-                "authors (id serial PRIMARY KEY, name VARCHAR(25));"  +
-                "INSERT INTO authors(id, name) VALUES(1, 'Jack London');"
+                "authors (id serial PRIMARY KEY, name VARCHAR(25));"
+        const val insert_query =  "INSERT INTO " +
+                "authors(id, name) " +
+                "VALUES(1, 'Jack London');"
         val delete_column_query = "ALTER TABLE authors " +
                 "DROP COLUMN name;"
         val delete_table_query = "DROP TABLE authors;"
@@ -48,6 +50,7 @@ open class DataSetsTest : MultipleAuthenticatedUsersBase() {
         try {
             DriverManager.getConnection(url, credentials.user, credentials.credential).use { con ->
                 con.prepareStatement(create_query).executeUpdate()
+                con.prepareStatement(insert_query).executeUpdate()
             }
         } catch (ex: SQLException) {
             logger.error("Couldn't create table.", ex)
