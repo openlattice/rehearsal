@@ -2,14 +2,11 @@ package com.openlattice.rehearsal.datasets
 
 import com.openlattice.organization.OrganizationIntegrationAccount
 import com.openlattice.organizations.Organization
-import com.openlattice.postgres.PostgresColumn
 import com.openlattice.rehearsal.authentication.MultipleAuthenticatedUsersBase
 import com.openlattice.rehearsal.organization.TestAssemblerConnectionManager
 import junit.framework.Assert
 import org.junit.BeforeClass
 import org.junit.Test
-import java.sql.DriverManager
-import java.sql.SQLException
 import java.util.*
 
 
@@ -19,10 +16,11 @@ open class DataSetsTest : MultipleAuthenticatedUsersBase() {
         lateinit var organization: Organization
         lateinit var organizationID: UUID
         lateinit var url: String
+        lateinit var connectionProperties: Properties
 
         const val create_query = "CREATE TABLE IF NOT EXISTS " +
                 "authors (id serial PRIMARY KEY, name VARCHAR(25));"
-        const val insert_query =  "INSERT INTO " +
+        const val insert_query = "INSERT INTO " +
                 "authors(id, name) " +
                 "VALUES(1, 'Jack London');"
         val delete_column_query = "ALTER TABLE authors " +
@@ -31,6 +29,7 @@ open class DataSetsTest : MultipleAuthenticatedUsersBase() {
         val tableName = "authors"
         val columnName = "name"
 
+
         @JvmStatic
         @BeforeClass
         fun init() {
@@ -38,9 +37,13 @@ open class DataSetsTest : MultipleAuthenticatedUsersBase() {
 
             organization = createOrganization()
             organizationID = organization.id
-            url = "jdbc:postgresql://localhost:5432/org_" + organizationID.toString().replace("-", "")
             credentials = organizationsApi.getOrganizationIntegrationAccount(organizationID)
-       }
+            connectionProperties["jdbcUrl"] = "jdbc:postgresql://localhost:5432"
+            connectionProperties["username"] = credentials.user
+            connectionProperties["password"] = credentials.credential
+            connectionProperties["maximumPoolSize"] = 5
+            connectionProperties["connectionTimeout"] = 60000
+        }
 
     }
 
@@ -48,7 +51,7 @@ open class DataSetsTest : MultipleAuthenticatedUsersBase() {
         val id = 1
         val author = "Jack London"
 
-        val organizationDataSource = TestAssemblerConnectionManager.connect(organizationID)
+        val organizationDataSource = TestAssemblerConnectionManager.connect(organizationID, Optional.of(connectionProperties))
         organizationDataSource.connection.use { connection ->
             connection.createStatement().use { stmt ->
                 stmt.executeQuery(create_query)
@@ -58,7 +61,7 @@ open class DataSetsTest : MultipleAuthenticatedUsersBase() {
     }
 
     fun removeDataColumn() {
-        val organizationDataSource = TestAssemblerConnectionManager.connect(organizationID)
+        val organizationDataSource = TestAssemblerConnectionManager.connect(organizationID, Optional.of(connectionProperties))
         organizationDataSource.connection.use { connection ->
             connection.createStatement().use { stmt ->
                 stmt.executeQuery(delete_column_query)
@@ -67,7 +70,7 @@ open class DataSetsTest : MultipleAuthenticatedUsersBase() {
     }
 
     fun removeDataTable() {
-        val organizationDataSource = TestAssemblerConnectionManager.connect(organizationID)
+        val organizationDataSource = TestAssemblerConnectionManager.connect(organizationID, Optional.of(connectionProperties))
         organizationDataSource.connection.use { connection ->
             connection.createStatement().use { stmt ->
                 stmt.executeQuery(delete_table_query)
