@@ -36,7 +36,6 @@ open class DataSetsTest : MultipleAuthenticatedUsersBase() {
 
             organization = createOrganization()
             organizationID = organization.id
-//            organizationID = UUID(1L, 0L)
             url = "jdbc:postgresql://localhost:5432/org_" + organizationID.toString().replace("-", "")
             credentials = organizationsApi.getOrganizationIntegrationAccount(organizationID)
        }
