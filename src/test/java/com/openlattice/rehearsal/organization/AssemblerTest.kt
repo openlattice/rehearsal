@@ -1193,6 +1193,7 @@ class AssemblerTest : AssemblerTestBase() {
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
+                Optional.empty(),
                 Optional.of(listOf(
                         DataLake(
                                 sourceDb,
