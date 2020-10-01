@@ -4,7 +4,6 @@ import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ListMultimap
 import com.openlattice.assembler.AssemblerConnectionManager
-import com.openlattice.assembler.PostgresDatabases
 import com.openlattice.authorization.*
 import com.openlattice.data.DataEdgeKey
 import com.openlattice.data.DeleteType
@@ -14,7 +13,7 @@ import com.openlattice.edm.requests.MetadataUpdate
 import com.openlattice.launchpad.configuration.DataLake
 import com.openlattice.launchpad.configuration.Integration
 import com.openlattice.launchpad.configuration.IntegrationConfiguration
-import com.openlattice.launchpad.configuration.IntegrationRunner
+import com.openlattice.launchpad.IntegrationRunner
 import com.openlattice.mapstores.TestDataFactory
 import com.openlattice.organization.OrganizationEntitySetFlag
 import com.openlattice.organizations.Organization
@@ -1169,7 +1168,7 @@ class AssemblerTest : AssemblerTestBase() {
 
         // integrate data from local db to org openlattice schema
         val organizationUserCredentials = organizationsApi.getOrganizationIntegrationAccount(organization2.id)
-        val organizationDataBaseName = PostgresDatabases.buildDefaultOrganizationDatabaseName(organization2.id)
+        val organizationDataBaseName = TestAssemblerConnectionManager.getOrgDbName(organization2.id)
 
         val sourceDb = "local_db"
         val destinationDb = "${organization2.id}_db"

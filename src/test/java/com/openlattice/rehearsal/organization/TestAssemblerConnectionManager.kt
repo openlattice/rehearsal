@@ -20,14 +20,15 @@
  */
 package com.openlattice.rehearsal.organization
 
+import com.hazelcast.core.HazelcastInstance
 import com.kryptnostic.rhizome.pods.ConfigurationLoaderPod
 import com.openlattice.assembler.AssemblerConfiguration
 import com.openlattice.assembler.AssemblerConnectionManager
-import com.openlattice.assembler.PostgresDatabases
 import com.openlattice.assembler.pods.AssemblerConfigurationPod
 import com.openlattice.postgres.DataTables
 import com.openlattice.postgres.PostgresColumn
 import com.openlattice.postgres.PostgresTable
+import com.openlattice.postgres.external.ExternalDatabaseConnectionManager
 import com.openlattice.rehearsal.application.TestServer
 import com.zaxxer.hikari.HikariDataSource
 import java.sql.ResultSet
@@ -36,23 +37,28 @@ import java.util.*
 class TestAssemblerConnectionManager {
 
     companion object {
-        private var assemblerConfiguration: AssemblerConfiguration
-
         // TODO change tests for this after transporter is ready
         const val PRODUCTION_FOREIGN_SCHEMA = "prod"
+
+        private var externalDbConnMan: ExternalDatabaseConnectionManager
 
         init {
             val testsServer = TestServer(ConfigurationLoaderPod::class.java, AssemblerConfigurationPod::class.java)
             testsServer.sprout("local")
-            assemblerConfiguration = testsServer.context.getBean(AssemblerConfiguration::class.java)
+            externalDbConnMan = ExternalDatabaseConnectionManager(
+                    testsServer.context.getBean(AssemblerConfiguration::class.java),
+                    testsServer.context.getBean(HazelcastInstance::class.java)
+            )
         }
 
         @JvmStatic
         fun connect(organizationId: UUID, config: Optional<Properties> = Optional.empty()): HikariDataSource {
-            val dbName = PostgresDatabases.buildDefaultOrganizationDatabaseName(organizationId)
-            val connectionConfig = config.orElse(assemblerConfiguration.server.clone() as Properties)
+            return externalDbConnMan.createOrgDataSource(organizationId)
+        }
 
-            return AssemblerConnectionManager.createDataSource(dbName, connectionConfig, assemblerConfiguration.ssl)
+        @JvmStatic
+        fun getOrgDbName(organizationId: UUID): String {
+            return externalDbConnMan.getOrganizationDatabaseName(organizationId)
         }
 
         /**
