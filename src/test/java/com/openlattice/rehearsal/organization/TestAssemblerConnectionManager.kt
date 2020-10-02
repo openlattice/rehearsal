@@ -40,7 +40,7 @@ class TestAssemblerConnectionManager {
         // TODO change tests for this after transporter is ready
         const val PRODUCTION_FOREIGN_SCHEMA = "prod"
 
-        private var externalDbConnMan: ExternalDatabaseConnectionManager
+        var externalDbConnMan: ExternalDatabaseConnectionManager
 
         init {
             val testsServer = TestServer(ConfigurationLoaderPod::class.java, AssemblerConfigurationPod::class.java)
@@ -52,8 +52,8 @@ class TestAssemblerConnectionManager {
         }
 
         @JvmStatic
-        fun connect(organizationId: UUID, config: Optional<Properties> = Optional.empty()): HikariDataSource {
-            return externalDbConnMan.createOrgDataSource(organizationId)
+        fun connect(organizationId: UUID): HikariDataSource {
+            return externalDbConnMan.connectToOrg(organizationId)
         }
 
         @JvmStatic

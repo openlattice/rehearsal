@@ -838,9 +838,10 @@ class AssemblerLinkingTest : AssemblerTestBase() {
         connectionProperties["connectionTimeout"] = 60000
 
         // connect with user1(simple member) credentials
-        val user1OrganizationDataSource = TestAssemblerConnectionManager.connect(
-                organizationID,
-                Optional.of(connectionProperties)
+        val user1OrganizationDataSource = TestAssemblerConnectionManager.externalDbConnMan.createDataSource(
+                TestAssemblerConnectionManager.externalDbConnMan.getOrganizationDatabaseName(organizationID),
+                connectionProperties
+                false
         )
 
         user1OrganizationDataSource.connection.use { connection ->
