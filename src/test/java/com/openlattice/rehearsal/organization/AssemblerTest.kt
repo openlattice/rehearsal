@@ -14,6 +14,7 @@ import com.openlattice.launchpad.configuration.DataLake
 import com.openlattice.launchpad.configuration.Integration
 import com.openlattice.launchpad.configuration.IntegrationConfiguration
 import com.openlattice.launchpad.IntegrationRunner
+import com.openlattice.launchpad.configuration.configureOrGetSparkSession
 import com.openlattice.mapstores.TestDataFactory
 import com.openlattice.organization.OrganizationEntitySetFlag
 import com.openlattice.organizations.Organization
@@ -592,10 +593,7 @@ class AssemblerTest : AssemblerTestBase() {
         connectionProperties["connectionTimeout"] = 60000
 
         // connect with user1(simple member) credentials
-        val user1OrganizationDataSource = TestAssemblerConnectionManager.connect(
-                organizationID,
-                Optional.of(connectionProperties)
-        )
+        val user1OrganizationDataSource = TestAssemblerConnectionManager.connect(organizationID)
 
         user1OrganizationDataSource.connection.use { connection ->
             connection.createStatement().use { stmt ->
@@ -935,9 +933,7 @@ class AssemblerTest : AssemblerTestBase() {
         connectionProperties["connectionTimeout"] = 60000
 
         // connect with user1(simple member) credentials
-        val user1OrganizationDataSource = TestAssemblerConnectionManager.connect(
-                organizationID,
-                Optional.of(connectionProperties))
+        val user1OrganizationDataSource = TestAssemblerConnectionManager.connect(organizationID)
 
         user1OrganizationDataSource.connection.use { connection ->
             connection.createStatement().use { stmt ->
@@ -1114,10 +1110,7 @@ class AssemblerTest : AssemblerTestBase() {
         connectionProperties["connectionTimeout"] = 60000
 
         // connect with user1(simple member) credentials
-        val user1OrganizationDataSource = TestAssemblerConnectionManager.connect(
-                organizationID,
-                Optional.of(connectionProperties)
-        )
+        val user1OrganizationDataSource = TestAssemblerConnectionManager.connect(organizationID)
 
         user1OrganizationDataSource.connection.use { connection ->
             connection.createStatement().use { stmt ->
@@ -1191,6 +1184,7 @@ class AssemblerTest : AssemblerTestBase() {
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
+                Optional.empty(),
                 Optional.of(listOf(
                         DataLake(
                                 sourceDb,
@@ -1210,7 +1204,7 @@ class AssemblerTest : AssemblerTestBase() {
                 mapOf(sourceDb to integrations)
         )
 
-        IntegrationRunner.configureOrGetSparkSession( integrationConfiguration ).use { session ->
+        configureOrGetSparkSession( integrationConfiguration ).use { session ->
             IntegrationRunner.runIntegrations(integrationConfiguration, session)
         }
 
