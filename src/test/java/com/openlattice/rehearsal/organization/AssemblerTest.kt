@@ -11,10 +11,11 @@ import com.openlattice.data.DeleteType
 import com.openlattice.data.EntityDataKey
 import com.openlattice.data.UpdateType
 import com.openlattice.edm.requests.MetadataUpdate
+import com.openlattice.launchpad.IntegrationRunner
 import com.openlattice.launchpad.configuration.DataLake
 import com.openlattice.launchpad.configuration.Integration
 import com.openlattice.launchpad.configuration.IntegrationConfiguration
-import com.openlattice.launchpad.configuration.IntegrationRunner
+import com.openlattice.launchpad.configuration.configureOrGetSparkSession
 import com.openlattice.mapstores.TestDataFactory
 import com.openlattice.organization.OrganizationEntitySetFlag
 import com.openlattice.organizations.Organization
@@ -22,6 +23,7 @@ import com.openlattice.postgres.DataTables.quote
 import com.openlattice.postgres.PostgresColumn.*
 import com.openlattice.postgres.PostgresTable
 import com.openlattice.postgres.ResultSetAdapters
+import com.openlattice.postgres.external.ExternalDatabaseConnectionManager
 import com.openlattice.rehearsal.assertException
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings
 import org.junit.Assert
@@ -898,7 +900,7 @@ class AssemblerTest : AssemblerTestBase() {
             connection.createStatement().use { stmt ->
                 assertException(
                         { stmt.executeQuery(TestAssemblerConnectionManager.selectFromEntitySetSql(esSrc.name)) },
-                        "relation ${quote("${AssemblerConnectionManager.MATERIALIZED_VIEWS_SCHEMA}.${esSrc.name}")} does not exist"
+                        "relation ${quote("${AssemblerConnectionManager.OPENLATTICE_SCHEMA}.${esSrc.name}")} does not exist"
                 )
             }
         }
@@ -1009,7 +1011,7 @@ class AssemblerTest : AssemblerTestBase() {
             connection.createStatement().use { stmt ->
                 assertException(
                         { stmt.executeQuery(TestAssemblerConnectionManager.selectFromEntitySetSql(es.name)) },
-                        "relation \"${AssemblerConnectionManager.MATERIALIZED_VIEWS_SCHEMA}.${es.name}\" does not exist"
+                        "relation \"${AssemblerConnectionManager.OPENLATTICE_SCHEMA}.${es.name}\" does not exist"
                 )
             }
         }
@@ -1071,7 +1073,7 @@ class AssemblerTest : AssemblerTestBase() {
             connection.createStatement().use { stmt ->
                 assertException(
                         { stmt.executeQuery(TestAssemblerConnectionManager.selectFromEntitySetSql(es.name)) },
-                        "relation \"${AssemblerConnectionManager.MATERIALIZED_VIEWS_SCHEMA}.${es.name}\" does not exist"
+                        "relation \"${AssemblerConnectionManager.OPENLATTICE_SCHEMA}.${es.name}\" does not exist"
                 )
             }
         }
@@ -1169,7 +1171,7 @@ class AssemblerTest : AssemblerTestBase() {
 
         // integrate data from local db to org openlattice schema
         val organizationUserCredentials = organizationsApi.getOrganizationIntegrationAccount(organization2.id)
-        val organizationDataBaseName = PostgresDatabases.buildDefaultOrganizationDatabaseName(organization2.id)
+        val organizationDataBaseName = ExternalDatabaseConnectionManager.buildDefaultOrganizationDatabaseName(organization2.id)
 
         val sourceDb = "local_db"
         val destinationDb = "${organization2.id}_db"
@@ -1192,6 +1194,7 @@ class AssemblerTest : AssemblerTestBase() {
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
+                Optional.empty(),
                 Optional.of(listOf(
                         DataLake(
                                 sourceDb,
@@ -1211,7 +1214,7 @@ class AssemblerTest : AssemblerTestBase() {
                 mapOf(sourceDb to integrations)
         )
 
-        IntegrationRunner.configureOrGetSparkSession( integrationConfiguration ).use { session ->
+        configureOrGetSparkSession( integrationConfiguration ).use { session ->
             IntegrationRunner.runIntegrations(integrationConfiguration, session)
         }
 
@@ -1262,7 +1265,7 @@ class AssemblerTest : AssemblerTestBase() {
             connection.createStatement().use { stmt ->
                 assertException(
                         { stmt.executeQuery(TestAssemblerConnectionManager.selectFromEntitySetSql(es.name)) },
-                        "relation \"${AssemblerConnectionManager.MATERIALIZED_VIEWS_SCHEMA}.${es.name}\" does not exist"
+                        "relation \"${AssemblerConnectionManager.OPENLATTICE_SCHEMA}.${es.name}\" does not exist"
                 )
             }
         }
@@ -1276,7 +1279,7 @@ class AssemblerTest : AssemblerTestBase() {
             connection.createStatement().use { stmt ->
                 assertException(
                         { stmt.executeQuery(TestAssemblerConnectionManager.selectFromEntitySetSql(es.name)) },
-                        "relation \"${AssemblerConnectionManager.MATERIALIZED_VIEWS_SCHEMA}.${es.name}\" does not exist"
+                        "relation \"${AssemblerConnectionManager.OPENLATTICE_SCHEMA}.${es.name}\" does not exist"
                 )
             }
         }
@@ -1396,7 +1399,7 @@ class AssemblerTest : AssemblerTestBase() {
 
                 assertException(
                         { stmt.executeQuery(TestAssemblerConnectionManager.selectFromEntitySetSql(es2.name)) },
-                        "relation \"${AssemblerConnectionManager.MATERIALIZED_VIEWS_SCHEMA}.${es2.name}\" does not exist"
+                        "relation \"${AssemblerConnectionManager.OPENLATTICE_SCHEMA}.${es2.name}\" does not exist"
                 )
             }
         }
@@ -1438,7 +1441,7 @@ class AssemblerTest : AssemblerTestBase() {
             connection.createStatement().use { stmt ->
                 assertException(
                         { stmt.executeQuery(TestAssemblerConnectionManager.selectFromEntitySetSql(es2.name)) },
-                        "relation \"${AssemblerConnectionManager.MATERIALIZED_VIEWS_SCHEMA}.${es2.name}\" does not exist"
+                        "relation \"${AssemblerConnectionManager.OPENLATTICE_SCHEMA}.${es2.name}\" does not exist"
                 )
             }
         }
