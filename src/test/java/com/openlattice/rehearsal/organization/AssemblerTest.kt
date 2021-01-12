@@ -895,7 +895,7 @@ class AssemblerTest : AssemblerTestBase() {
             connection.createStatement().use { stmt ->
                 assertException(
                         { stmt.executeQuery(TestAssemblerConnectionManager.selectFromEntitySetSql(esSrc.name)) },
-                        "relation ${quote("${AssemblerConnectionManager.MATERIALIZED_VIEWS_SCHEMA}.${esSrc.name}")} does not exist"
+                        "relation ${quote("${AssemblerConnectionManager.OPENLATTICE_SCHEMA}.${esSrc.name}")} does not exist"
                 )
             }
         }
@@ -1004,7 +1004,7 @@ class AssemblerTest : AssemblerTestBase() {
             connection.createStatement().use { stmt ->
                 assertException(
                         { stmt.executeQuery(TestAssemblerConnectionManager.selectFromEntitySetSql(es.name)) },
-                        "relation \"${AssemblerConnectionManager.MATERIALIZED_VIEWS_SCHEMA}.${es.name}\" does not exist"
+                        "relation \"${AssemblerConnectionManager.OPENLATTICE_SCHEMA}.${es.name}\" does not exist"
                 )
             }
         }
@@ -1066,7 +1066,7 @@ class AssemblerTest : AssemblerTestBase() {
             connection.createStatement().use { stmt ->
                 assertException(
                         { stmt.executeQuery(TestAssemblerConnectionManager.selectFromEntitySetSql(es.name)) },
-                        "relation \"${AssemblerConnectionManager.MATERIALIZED_VIEWS_SCHEMA}.${es.name}\" does not exist"
+                        "relation \"${AssemblerConnectionManager.OPENLATTICE_SCHEMA}.${es.name}\" does not exist"
                 )
             }
         }
@@ -1255,7 +1255,7 @@ class AssemblerTest : AssemblerTestBase() {
             connection.createStatement().use { stmt ->
                 assertException(
                         { stmt.executeQuery(TestAssemblerConnectionManager.selectFromEntitySetSql(es.name)) },
-                        "relation \"${AssemblerConnectionManager.MATERIALIZED_VIEWS_SCHEMA}.${es.name}\" does not exist"
+                        "relation \"${AssemblerConnectionManager.OPENLATTICE_SCHEMA}.${es.name}\" does not exist"
                 )
             }
         }
@@ -1269,7 +1269,7 @@ class AssemblerTest : AssemblerTestBase() {
             connection.createStatement().use { stmt ->
                 assertException(
                         { stmt.executeQuery(TestAssemblerConnectionManager.selectFromEntitySetSql(es.name)) },
-                        "relation \"${AssemblerConnectionManager.MATERIALIZED_VIEWS_SCHEMA}.${es.name}\" does not exist"
+                        "relation \"${AssemblerConnectionManager.OPENLATTICE_SCHEMA}.${es.name}\" does not exist"
                 )
             }
         }
@@ -1389,7 +1389,7 @@ class AssemblerTest : AssemblerTestBase() {
 
                 assertException(
                         { stmt.executeQuery(TestAssemblerConnectionManager.selectFromEntitySetSql(es2.name)) },
-                        "relation \"${AssemblerConnectionManager.MATERIALIZED_VIEWS_SCHEMA}.${es2.name}\" does not exist"
+                        "relation \"${AssemblerConnectionManager.OPENLATTICE_SCHEMA}.${es2.name}\" does not exist"
                 )
             }
         }
@@ -1431,7 +1431,7 @@ class AssemblerTest : AssemblerTestBase() {
             connection.createStatement().use { stmt ->
                 assertException(
                         { stmt.executeQuery(TestAssemblerConnectionManager.selectFromEntitySetSql(es2.name)) },
-                        "relation \"${AssemblerConnectionManager.MATERIALIZED_VIEWS_SCHEMA}.${es2.name}\" does not exist"
+                        "relation \"${AssemblerConnectionManager.OPENLATTICE_SCHEMA}.${es2.name}\" does not exist"
                 )
             }
         }
